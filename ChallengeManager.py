@@ -5,11 +5,11 @@ from web3 import Web3
 from brownie.network.gas.strategies import GasNowStrategy
 import sys
 
-Players = { 'Pacho': '0xc89304bE60b1184281cDacF8e9ADD215B960Fcb8',
-            'Citte': '0xebf84b5aa7a66412863F8F66655B5876EF92d91F', 
+Players = { 'Pacho': '',
+            'Citte': '', 
             'Fra': '',
             'Becca': '',
-            'Diana': '0x0B3DE044dC8b2902e6B668Cc43bfedB39dfA8fcD'}
+            'Diana': ''}
 
 #alternativamente facciamo un load da un json, la sintassi sara comunque la stessa di qui sopra
 
