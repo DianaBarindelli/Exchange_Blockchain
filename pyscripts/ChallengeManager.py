@@ -26,7 +26,7 @@ Players = { 'Pacho': '0xc89304bE60b1184281cDacF8e9ADD215B960Fcb8',
 
 
 #alternativamente facciamo un load da un json, la sintassi sara comunque la stessa di qui sopra, tipo:
-f = open('NomeFile.json')
+f = open('players.json')
 Players = json.load(f)
 f.close()
 
