@@ -33,10 +33,11 @@ schedule.every(10).seconds.do(readLog)
 
 while True:
     schedule.run_pending()
+    
     if("trovo il mio nome nella challenge, leggeendo dai logs tipo se trovo"):
         TimeLeft = challenge.timeLeft({'from' : myAccount}) 
         if TimeLeft > 0 :        
             time.sleep(TimeLeft)
             os.system("python ChallengeManager.py accept")
-
+    time.sleep(1)
 
