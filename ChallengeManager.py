@@ -9,7 +9,7 @@ import sys
     Usage (from command line):
 
     *** LAUNCH 1 VS 1 CHALLENGE ***
-    $ python ChallengeManager.py launch_1v1 target2
+    $ python ChallengeManager.py launch_1v1 target1
 
     *** LAUNCH 1 VS 2 CHALLENGE ***
     $ python ChallengeManager.py launch_1v2 target1 target2
