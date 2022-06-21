@@ -1,6 +1,6 @@
 # scripts:
 
-Qui puoi trovare la lista di tutti gli script e file `.json` che serviranno per l'esame.
+Qui puoi trovare la lista di tutti gli script e file `.json` che serviranno per l'esame. E' molto importante che gli script rimangano nella stessa cartella: alcuni potrebbero necessitare della libreria `tblib` mentre altri dei dizionari contenuti nei file JSON.
 
 ### contenuto:
 
