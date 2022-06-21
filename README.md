@@ -9,10 +9,10 @@ Exchange Project for Unimi Blockchain course
 - controllare che il challenge.sol di cri funzioni con i problemi di import di solc di teo
 - PACIO: fare il blocco di minting 10% della liquidità al giorno 
 - PACIO: aggiungere il bot minter in challange.sol
-- verificare la questione di token multipli di infura (se console o cartelle) + verificare gli accessi dei bot
+- verificare la questione di token multipli di infura (se console o cartelle) + verificare gli accessi dei bot EDIT: funziona. Basta aprire terminali diversi e fare export WEB3_.... con l'id diverso, si collegherà al diverso progetto anche se sono file nella stessa cartella.
 - CITTE: verificare il nuovo initial deploy funzioni (con paycoin.balance ==0)
 - Controllare che funzioni TimeMarket.sol
-- Spostare in una cartella scripts<Deploy i file che serviranno per il deploy ed importare tutti i file.json eh,,,
+- Spostare in una cartella scripts < Deploy i file che serviranno per il deploy ed importare tutti i file.json eh,,,
                                         
                                           
 ### Da verificare quando facciamo il deploy:
