@@ -11,7 +11,11 @@ Exchange Project for Unimi Blockchain course
 - PACIO: aggiungere il bot minter in challange.sol
 - verificare la questione di token multipli di infura (se console o cartelle) + verificare gli accessi dei bot
 - CITTE: verificare il nuovo initial deploy funzioni (con paycoin.balance ==0)
+- Controllare che funzioni TimeMarket.sol
 - Spostare in una cartella scripts<Deploy i file che serviranno per il deploy ed importare tutti i file.json
+                                          
+                                          
+                                          
 
 ###Istruzioni:
 
