@@ -7,6 +7,9 @@ Exchange Project for Unimi Blockchain course
 - scrivere e controllare che tutti gli script peschino i file nella maniera corretta e che funzioni su tutti i pc
 - scrivere bene le istruzioni
 - controllare che il challenge.sol di cri funzioni con i problemi di import di solc di teo
+- PACIO: fare il blocco di minting 10% della liquidità al giorno 
+- PACIO: aggiungere il bot minter in challange.sol
+- verificare la questione di token multipli di infura (se console o cartelle) + verificare gli accessi dei bot
 
 ###Istruzioni:
 
