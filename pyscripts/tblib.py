@@ -327,12 +327,11 @@ class ATM():
         self.pools=pools
         self.Token_symbols=Token_symbols
 
-    def initial_topup(self,pcn_limit=10000*10**18,eth_limit=5*10**15):
+    def initial_topup(self,eth_limit=5*10**15):
 
         """
         Ricarica di credito che si effettua all'inizio quando c'è appena stato il deploy degli smart contract. Avverrà una
         volta sola nel corso dell'esame.
-        `pcn_limit`: int - soglia di pcn al di sotto della quale scatta la ricarica
         `eth_limit`: int - soglia di eth al di sotto della quale scatta la ricarica
 
         IMPORTANTE: ogni operazione fallirà non appena il conto è inferiore di max_gas_limit*gas_price + value. Quello che conta
@@ -342,19 +341,11 @@ class ATM():
 
         print('Filling up the bots with paycoins:')
         thr=[]
-        pcnlimit=pcn_limit                                #10000 pcn
         ethlimit=eth_limit                                #(0.001 eth)
 
         for botno, bot in enumerate(self.bots):
     
             print(f'Stocking up bot [{botno}] {bot}')
-
-            #Ricarica di token paycoin
-            if self.paycoin.balanceOf(bot)<pcnlimit:      
-
-                PcN_amount=random.uniform (1000*10**18,100000*10**18)
-                thr.append(threading.Thread(target=self.paycoin.mint, args=(bot, PcN_amount, {'from':self.paycoin_minter})))
-                thr[-1].start()
         
             #Ricarica di ether per le gas fee
             #ATTENZIONE: LEGGI COMMENTO SI PUò FORSE IMPLEMENTARE MENGLIO
@@ -549,3 +540,26 @@ def pools_config(pools,dict_balances,tokens,users,bot_minter,Paycoin):
         tokens[i].mint(pools[i],dict_balances['token'][str(i+1)]*10**18, {'from':users[i]})                #Rapporto 1:1
         Paycoin.mint(pools[i],dict_balances['paycoin'][str(i+1)]*10**18, {'from':bot_minter})
         pools[i].pool_Set({'from':users[i]})
+
+def mint_paycoin_to_bots(bots,paycoin,paycoin_minter):
+
+    """
+    Funzione che serve per dotare di paycoin per la prima volta i bot. Initial top_up della classe ATM così gestirà gli ether
+    e non farà richieste inutili.
+    """
+        
+    thr=[]
+    for botno, bot in enumerate(bots):
+
+        print(f'Stocking up bot [{botno}] {bot} with Paycoins')
+        
+        if paycoin.balanceOf(bot)==0:      
+
+            PcN_amount=random.uniform (1000*10**18,100000*10**18)
+            thr.append(threading.Thread(target=paycoin.mint, args=(bot, PcN_amount, {'from':paycoin_minter})))
+            thr[-1].start()
+
+    for t in thr:
+        t.join()  
+
+    print('All bots now have a Paycoin balance.')
