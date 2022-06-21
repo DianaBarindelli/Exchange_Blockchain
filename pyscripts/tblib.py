@@ -273,7 +273,7 @@ class market_op():
 
     def swap(self,gas_price):
         """
-        Esegue l'operazione di scambio dei token secondo le variabili estratte. Usa la funzione `swap` scritta sopra sopra
+        Esegue l'operazione di scambio dei token secondo le variabili estratte. Usa la funzione `swap` scritta sopra
         self.pool è il token che detiene e sarà scambiato mentre self.pool2 è quello che voglio acquisire
         `gas_price`: prezzo del gas che si vuole usare. Per le operazioni dei bot forse meglio automatico.
                  calcolarlo con `web3.eth.gasPrice`.

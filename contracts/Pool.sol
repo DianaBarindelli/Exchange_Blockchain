@@ -167,7 +167,7 @@ contract Pool is MinterRole, TimeMarket{
     /**
      *
      * Function set_K, is the function used to set the constant which
-     * define token price with ellipse rule.
+     * define token price with hyperbole rule.
      * K was already setted in pool_set() function, but another function
      * is need after increase_Token and decrease_Token functions are
      * called
@@ -300,7 +300,7 @@ contract Pool is MinterRole, TimeMarket{
      * pool with paycoins. It requires token's quantity which are required
      * by the msg.sender.
      * The token's price are calculated with Uniswap rule
-     * to be on ellipse.
+     * to be on hyperbole.
      *
      * Transaction fee are sended to the Pool's owner.
      * This function Emits a {Buy} event indicating buyer's address,
@@ -335,7 +335,7 @@ contract Pool is MinterRole, TimeMarket{
      * in exchange for paycoins. Itrequires token's quantity that the
      * msg.sender wants to sell.
      * The token's price are calculated with Uniswap rule
-     * to be on ellipse.
+     * to be on hyperbole.
      *
      * Transaction fee are sended to the Pool's owner.
      * This function Emits a {Sell} event indicating seller's address,
@@ -372,7 +372,7 @@ contract Pool is MinterRole, TimeMarket{
      * pool (named poolB). There is a double exchange between this pool
      * and poolB, and between this pool and msg.sender.
      * The token's price are calculated with Uniswap rule
-     * to be on ellipse.
+     * to be on hyperbole.
      *
      * Transaction fee are sended to the Pool's owner: both for this pool
      * and poolB

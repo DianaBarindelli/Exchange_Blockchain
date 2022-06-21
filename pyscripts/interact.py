@@ -239,7 +239,7 @@ if __name__=='__main__':
         print('Transaction sent, waiting for approval\n\n')
         t.start()
         t.join()
-        print('=========TRANSACTION CARRYED OUT=========')
+        print('=========TRANSACTION CARRIED OUT=========')
         print('\nNew user balance:\n ')
         print('Paycoin balance: ', ether(Paycoin.balanceOf(personal)),' PcN')
         for i in range(0,len(tokens)):
