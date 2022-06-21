@@ -10,6 +10,7 @@ Exchange Project for Unimi Blockchain course
 - PACIO: fare il blocco di minting 10% della liquidità al giorno 
 - PACIO: aggiungere il bot minter in challange.sol
 - verificare la questione di token multipli di infura (se console o cartelle) + verificare gli accessi dei bot
+- CITTE: verificare il nuovo initial deploy funzioni (con paycoin.balance ==0)
 
 ###Istruzioni:
 
