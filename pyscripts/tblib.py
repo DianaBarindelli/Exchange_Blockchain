@@ -71,6 +71,8 @@ def get_gas_price():
     """
     #PER MATTEO: lui aggiunge sempre un gwei. Non capisco, so far non lo faccio, da vedere se farlo o meno
     gas_price=web3.eth.gasPrice
+    increase=0.4*gas_price  #10%
+    gas_price+=increase
     print(f"Gas price: {gwei(gas_price)} gwei")
     network.gas_price(f'{gas_price} wei')   #this sets the gas price for the next transactions
     network.gas_limit(300000)               #this sets the MAX amount of gas per transaction. WARNING
@@ -327,12 +329,11 @@ class ATM():
         self.pools=pools
         self.Token_symbols=Token_symbols
 
-    def initial_topup(self,pcn_limit=10000*10**18,eth_limit=5*10**15):
+    def initial_topup(self,eth_limit=5*10**15):
 
         """
         Ricarica di credito che si effettua all'inizio quando c'è appena stato il deploy degli smart contract. Avverrà una
         volta sola nel corso dell'esame.
-        `pcn_limit`: int - soglia di pcn al di sotto della quale scatta la ricarica
         `eth_limit`: int - soglia di eth al di sotto della quale scatta la ricarica
 
         IMPORTANTE: ogni operazione fallirà non appena il conto è inferiore di max_gas_limit*gas_price + value. Quello che conta
@@ -340,12 +341,13 @@ class ATM():
         'Per 100 bot inizialmente vengono caricati 0.5 eth'
         """
 
-        print('Filling up the bots with ether:')
+        print('Filling up the bots with paycoins:')
         thr=[]
-        pcnlimit=pcn_limit                                #10000 pcn
         ethlimit=eth_limit                                #(0.001 eth)
 
         for botno, bot in enumerate(self.bots):
+    
+            print(f'Stocking up bot [{botno}] {bot}')
         
             #Ricarica di ether per le gas fee
             #ATTENZIONE: LEGGI COMMENTO SI PUò FORSE IMPLEMENTARE MENGLIO
@@ -435,13 +437,12 @@ class ATM():
             self.faucet.withdraw(withdrawamount, {'from': account})
             print(f'Now the balance is {ether(account.balance())} Gwei')
 
-def run_noise_bots(personal_account,bots,max_op,pools,tokens,mean_time,token_names,token_symbols,bot_ATM,Paycoin,counter):
+def run_noise_bots(personal_account,bots,pools,tokens,mean_time,token_names,token_symbols,bot_ATM,Paycoin):
     """
     Programma che fa andare gli scambi automatici dei bot una volta riempiti inizialmente gli account.
 
     `personal_account`: addr - personal account
     `bots`: list - lista dei bot creati tramite mnemonic e ricaricati con opportuni ether e paycoin tramite la classe `ATM`
-    `max_op`: int - numero di operazioni che si vogliono effettuare in automatico
     `pools`: list - lista delle pools
     `tokens`: list - lista dei token
     `mean_time`: int - tempo medio di attesa tra due transazioni (se inferiore al secondo il programma va in ALT)
@@ -449,8 +450,6 @@ def run_noise_bots(personal_account,bots,max_op,pools,tokens,mean_time,token_nam
     `token_symbols`: list - lista dei simboli dei token
     `bot_ATM`: object - oggetto della classe ATM, serve per ricaricare i bot di PcN e Eth e stampare i balances vari.
     `Paycoin`: Contract - contratto del paycoin
-    `counter`: dict - serve per contare il numero di operazioni effettuate per tipo
-    `Max_operation_setted`: bool - NON ANCORA IMPLEMENTATO
 
     """
 
@@ -464,7 +463,7 @@ def run_noise_bots(personal_account,bots,max_op,pools,tokens,mean_time,token_nam
                                                 #diminuire
     operation=market_op(nbots, pools, Actions, mean_time)  #costruttore della classe
 
-    while i<max_op:
+    while True:
 
         if bot_ATM.faucet.balance()<0.1*10**18:
             bot_ATM.faucet.deposit({'from':personal_account,'value':0.2*10**18})
@@ -515,7 +514,6 @@ def run_noise_bots(personal_account,bots,max_op,pools,tokens,mean_time,token_nam
 
             if success:
                 i+=1
-                counter[op]+=1
                 print(colored(f'Carried_out_op #{i}','red','on_green'))
                 time.sleep(operation.time)
 
@@ -559,7 +557,8 @@ def mint_paycoin_to_bots(bots,paycoin,paycoin_minter):
         if paycoin.balanceOf(bot)==0:      
 
             PcN_amount=random.uniform (1000*10**18,100000*10**18)
-            thr.append(threading.Thread(target=paycoin.mint, args=(bot, PcN_amount, {'from':paycoin_minter})))
+            gas_price=get_gas_price()
+            thr.append(threading.Thread(target=paycoin.mint, args=(bot, PcN_amount, {'from':paycoin_minter, 'gas_price':gas_price})))
             thr[-1].start()
 
     for t in thr:
