@@ -27,7 +27,7 @@ def check_input_type(request_string,type_to_check):
 
     inputa=input(request_string)
     try:
-        bool=type(int(inputa))==type_to_check
+        bool=type(float(inputa))==type_to_check
     except:
         bool=False
 
@@ -66,7 +66,7 @@ if __name__=='__main__':
     """
     Recupero e connetto l'account personale dell'utente.
     """
-    
+
     try:
         personal=accounts.from_mnemonic(PrivateData['personal_account']['mnemonic'], count=1)
 
@@ -151,9 +151,9 @@ if __name__=='__main__':
                 print('Your current balance of token 1 is: ', yourtoken1balance,f'{token_symbols[token_names.index(token_1)]}')
                 amount_1,typebool=check_input_type(f'Please enter the amount of {token_1} you want to trade '+colored('WITHOUT *10**18 NOTATION, IT WILL BE  ADDED AUTOMATICALLY: ','red'), int)
                 while not typebool:
-                    print('Please enter an INT amount', colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'))
-                    amount_1,typebool=check_input_type(f'Please enter the amount of {token_1} you want to trade: ', int)
-                amount_1=int(amount_1)
+                    print('Please enter an FLOAT amount', colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'))
+                    amount_1,typebool=check_input_type(f'Please enter the amount of {token_1} you want to trade: ', float)
+                amount_1=float(amount_1)
                 checkedbalance=yourtoken1balance>=amount_1
                     
                 if not checkedbalance:
@@ -184,12 +184,12 @@ if __name__=='__main__':
                 your_pcn_balance=ether(Paycoin.balanceOf(personal))
                 print(f'Ok, we are going to buy {token_to_buy} using your paycoin')
                 print('Your current Paycoin balance is: ', your_pcn_balance,' PcN')
-                amount,typebool=check_input_type(f'Please enter the amount of {token_to_buy} you want to buy'+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), int)
+                amount,typebool=check_input_type(f'Please enter the amount of {token_to_buy} you want to buy'+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), float)
                 while not typebool:
                     print('Please enter an INT amount!')
-                    amount,typebool=check_input_type(f'Please enter the amount of {token_to_buy} you want to buy'+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), int)
+                    amount,typebool=check_input_type(f'Please enter the amount of {token_to_buy} you want to buy'+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), float)
 
-                amount=int(amount)
+                amount=float(amount)
                 amount_in_pcn=ether(pools[token_names.index(token_to_buy)].Get_Token_Price(amount*10**18))
                 checkedbalance=your_pcn_balance>=amount_in_pcn
                     
@@ -218,12 +218,12 @@ if __name__=='__main__':
                 your_tkn_balance=ether(tokens[token_names.index(token_to_sell)].balanceOf(personal))
                 print(f'Ok, we are going to sell {token_to_sell}')
                 print(f'Your current {token_to_sell} balance is: ', your_tkn_balance,f' {token_symbols[token_names.index(token_to_sell)]}')
-                amount,typebool=check_input_type(f'Please enter the amount of {token_to_sell} you want to sell'+colored (('(WITHOUT *10**18 NOTATION, IT WILL BE AUTOMATICALLY ADDED)','red')), int)
+                amount,typebool=check_input_type(f'Please enter the amount of {token_to_sell} you want to sell'+colored (('(WITHOUT *10**18 NOTATION, IT WILL BE AUTOMATICALLY ADDED)','red')), float)
                 while not typebool:
-                    print('Please enter an INT amount',colored(' (WITHOUT *10**18 NOTATION, IT WILL BE AUTOMATICALLY ADDED): ','red'))
-                    amount,typebool=check_input_type(f'Please enter the amount of {token_to_sell} you want to sell: ', int)
+                    print('Please enter an FLOAT amount',colored(' (WITHOUT *10**18 NOTATION, IT WILL BE AUTOMATICALLY ADDED): ','red'))
+                    amount,typebool=check_input_type(f'Please enter the amount of {token_to_sell} you want to sell: ', float)
 
-                amount=int(amount)
+                amount=float(amount)
                 checkedbalance=your_tkn_balance>=amount
                     
                 if not checkedbalance:
