@@ -51,7 +51,7 @@ pool= './logs/log.txt'  #file che contiene tutte le info delle transazioni della
 pay_token_price = './logs/log_paytokenprice.txt'  #file che contiene le quantità spostate di paycoin, token e il loro rapporto (price) per ogni evento
 tokenbalances = './logs/log_tokenbalances.txt'   #file che contiene le info sulle quantità di token dei player
 paycoinbalances = './logs/log_paycoinbalances.txt'  #file che contiene le info sulle quantità di paycoin dei player
-
+feesbalances = './logs/feesbalances.txt'  #file che contiene le info sulle fees pagate dai player
 
 #svuoto i due file relativi alla pool e ai token di pagamento
 clean(pool)
@@ -61,6 +61,9 @@ with open(paycoinbalances, 'w') as f:
 	f.write('Fra\tCri\tRichi\tMatte\tDiana\tDate\n')
 	
 with open(tokenbalances, 'w') as f:
+	f.write('Fra\tCri\tRichi\tMatte\tDiana\tDate\n')
+
+with open(feesbalances, 'w') as f:
 	f.write('Fra\tCri\tRichi\tMatte\tDiana\tDate\n')
 	
 
@@ -76,6 +79,8 @@ people={"Francesco":Data["Fra"] ,"Cristiano":Data["Cri"] ,"Riccardo":Data["Richi
 Init_tokenbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
 #inizialmente, prima dei vari mint, tutti avremo zero paycoin
 Init_paycoinbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
+#inizialmente, prima delle varie operazioni, tutti avremo zero fee
+#Init_feesbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
 
 #connessione alla rete
 network.connect('ropsten')
@@ -90,8 +95,11 @@ filt = web3.eth.filter({'address': contractAddress, 'fromBlock':0, 'toBlock':'la
 log = filt.get_all_entries()
 
 #log dei vari eventi presenti nella pool
-Bought_events = web3.keccak(text='Bought(address, uint256)').hex()
-ECCETERAAAAAA
+Bought_events = web3.keccak(text='Bought(address, uint256, uint256, uint256, uint256)').hex()
+Sold_events = web3.keccak(text='Sold(address, uint256, uint256, uint256, uint256)').hex()
+Swapp_events = web3.keccak(text='Swapp(address, uint256, uint256, uint256, uint256)').hex()
+Increase_events = web3.keccak(text='Increase(uint256, uint256)').hex()
+Decrease_events = web3.keccak(text='Decrease(uint256, uint256)').hex()
 
 
 #ciclo di lettura dei log e stampa dei risultati:
@@ -105,26 +113,106 @@ if len(log) > 0:
 		if sign == Bought_events:  #se il topic[0] coincide con l'hash dell'evento bought
 			print('--Buy--')
 			printFile('--buy--', pool) #inserisco nel file pool che è stato effettuato un'acquisto
-			data_decoded = eth_abi.decode_abi(['address', 'uint256'], HexBytes(data)) #mi decodifica il log nell'input dell'evento
-			#data_evento = str(time(data_decoded[#]) se ci fosse come input il momento in cui uno attua l'evento buy per esempio
-			print('sender:'+str(data_decoded[0]))
-			print('tkn_amount:'+str(data_decoded[1]))
-			printFile('sender:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
-			printFile('tkn_amount:'+str(data_decoded[1]), pool) #e la quantità
+			data_decoded = eth_abi.decode_abi(['address', 'uint256','uint256', 'uint256', 'uint256'], HexBytes(data)) #mi decodifica il log nell'input dell'evento
+			data_evento = str(time(data_decoded[#]) se ci fosse come input il momento in cui uno attua l'evento buy per esempio
+			print('buyer:'+str(data_decoded[0]))
+			print('tokenOut_amount:'+str(data_decoded[1]))
+			print('paycoinIn_amount:'+str(data_decoded[2]))
+			print('fees:'+str(data_decoded[3]))
+			printFile('buyer:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
+			printFile('tokenOut_amount:'+str(data_decoded[1]), pool) #e la quantità
+			printFile('paycoinIn_amount:'+str(data_decoded[2]))
+			printFile('fees:'+str(data_decoded[3]))
 			printFile('time:'+data_evento, pool) #e quando è avvenuto
 			
-			pay_amount = data_decoded[#] #dovremmo inserire nell'evento bought (come input) anche quanti paycoin deve spendere  per avere i tkn_amount chi vuole comprare
+			pay_amount = data_decoded[2] #dovremmo inserire nell'evento bought (come input) anche quanti paycoin deve spendere  per avere i tkn_amount chi vuole comprare
 			tkn_amount = data_decoded[1]  #non so se sono gia considerate le fee in questi input
 			price = pay_amount / tkn_amount  #rapporto tra paycoin spesi e token acquisiti
 			printFile(str(pay_amount)+'\t'+str(tkn_amount)+'t'+str(price)+'t'+data_evento, pay_token_price)  #salvo l'info nel file
 			
 			name = user_name(str(data_decoded[0])
 			token_balances[name] += data_decoded[1]
-			paycoin_balances[name] -= data_decoded[#]
-			
-			printFile(str(token_balances['Fra'] +'\t'+ str(token_balances['Cri'] +'\t'+ str(token_balances['Richi'] +'\t'+ str(token_balances['Matte'] +'\t'+ str(token_balances['Diana'] +'\t'+ data_evento, tokenbalances)  #salvo le info sul foglio tokenbalances
-			printFile(str(paycoin_balances['Fra'] +'\t'+ str(paycoin_balances['Cri'] +'\t'+ str(paycoin_balances['Richi'] +'\t'+ str(paycoin_balances['Matte'] +'\t'+ str(paycoin_balances['Diana'] +'\t'+ data_evento, paycoinbalances)
+			paycoin_balances[name] -= data_decoded[2]
 		
+		elif sign == Sold_events:  #se il topic[0] coincide con l'hash dell'evento bought
+			print('--Sold--')
+			printFile('--sold--', pool) #inserisco nel file pool che è stato effettuato un'acquisto
+			data_decoded = eth_abi.decode_abi(['address', 'uint256','uint256', 'uint256', 'uint256'], HexBytes(data)) #mi decodifica il log nell'input dell'evento
+			#data_evento = str(time(data_decoded[#]) se ci fosse come input il momento in cui uno attua l'evento buy per esempio
+			print('seller:'+str(data_decoded[0]))
+			print('tokenIn_amount:'+str(data_decoded[1]))
+			print('paycoinOut_amount:'+str(data_decoded[2]))
+			print('fees:'+str(data_decoded[3]))
+			printFile('seller:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
+			printFile('tokenIn_amount:'+str(data_decoded[1]), pool) #e la quantità
+			printFile('paycoinOut_amount:'+str(data_decoded[2]))
+			printFile('fees:'+str(data_decoded[3]))
+			printFile('time:'+data_evento, pool) #e quando è avvenuto
+			
+			pay_amount = data_decoded[2] #dovremmo inserire nell'evento bought (come input) anche quanti paycoin deve spendere  per avere i tkn_amount chi vuole comprare
+			tkn_amount = data_decoded[1]  #non so se sono gia considerate le fee in questi input
+			price = pay_amount / tkn_amount  #rapporto tra paycoin spesi e token acquisiti
+			printFile(str(pay_amount)+'\t'+str(tkn_amount)+'t'+str(price)+'t'+data_evento, pay_token_price)  #salvo l'info nel file
+			
+			name = user_name(str(data_decoded[0])
+			token_balances[name] -= data_decoded[1]
+			paycoin_balances[name] += data_decoded[2]
+
+		elif sign == Swapp_events:  #se il topic[0] coincide con l'hash dell'evento bought
+			print('--Swapp--')
+			printFile('--swapp--', pool) #inserisco nel file pool che è stato effettuato un'acquisto
+			data_decoded = eth_abi.decode_abi(['address', 'uint256','uint256', 'uint256', 'uint256'], HexBytes(data)) #mi decodifica il log nell'input dell'evento
+			#data_evento = str(time(data_decoded[#]) se ci fosse come input il momento in cui uno attua l'evento buy per esempio
+			print('swapper:'+str(data_decoded[0]))
+			print('tokenOut_amount:'+str(data_decoded[1]))
+			print('tokenIn_amount:'+str(data_decoded[2]))
+			print('fees:'+str(data_decoded[3]))
+			printFile('swapper:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
+			printFile('tokenOut_amount:'+str(data_decoded[1]), pool) #e la quantità
+			printFile('tokenIn_amount:'+str(data_decoded[2]))
+			printFile('fees:'+str(data_decoded[3]))
+			printFile('time:'+data_evento, pool) #e quando è avvenuto
+			
+			### CONTROLLARE
+			name = user_name(str(data_decoded[0])
+			token_balances[name] = token_balances[name] - data_decoded[1] + data_decoded[2]
+			
+
+		elif sign == Increase_events:  #se il topic[0] coincide con l'hash dell'evento bought
+			print('--Increase--')
+			printFile('--increase--', pool) #inserisco nel file pool che è stato effettuato un'acquisto
+			data_decoded = eth_abi.decode_abi(['uint256','uint256'], HexBytes(data)) #mi decodifica il log nell'input dell'evento
+			#data_evento = str(time(data_decoded[#]) se ci fosse come input il momento in cui uno attua l'evento buy per esempio
+			print('Token_increase:'+str(data_decoded[0]))
+			printFile('Token_increase:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
+			printFile('time:'+data_evento, pool) #e quando è avvenuto
+			
+			### CONTROLLARE
+			name = user_name(str(data_decoded[0])
+			token_balances[name] += data_decoded[0]
+
+		elif sign == Decrease_events:  #se il topic[0] coincide con l'hash dell'evento bought
+			print('--Decrease--')
+			printFile('--decrease--', pool) #inserisco nel file pool che è stato effettuato un'acquisto
+			data_decoded = eth_abi.decode_abi(['uint256','uint256'], HexBytes(data)) #mi decodifica il log nell'input dell'evento
+			#data_evento = str(time(data_decoded[#]) se ci fosse come input il momento in cui uno attua l'evento buy per esempio
+			print('Token_dencrease:'+str(data_decoded[0]))
+			printFile('Token_decrease:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
+			printFile('time:'+data_evento, pool) #e quando è avvenuto
+			
+			### CONTROLLARE
+			name = user_name(str(data_decoded[0])
+			token_balances[name] -= data_decoded[0]
+			
+
+
+
+
+
+
+		printFile(str(token_balances['Fra'] +'\t'+ str(token_balances['Cri'] +'\t'+ str(token_balances['Richi'] +'\t'+ str(token_balances['Matte'] +'\t'+ str(token_balances['Diana'] +'\t'+ data_evento, tokenbalances)  #salvo le info sul foglio tokenbalances
+		printFile(str(paycoin_balances['Fra'] +'\t'+ str(paycoin_balances['Cri'] +'\t'+ str(paycoin_balances['Richi'] +'\t'+ str(paycoin_balances['Matte'] +'\t'+ str(paycoin_balances['Diana'] +'\t'+ data_evento, paycoinbalances)
+		printFile(str(fees_balances['Fra'] +'\t'+ str(fees_balances['Cri'] +'\t'+ str(fees_balances['Richi'] +'\t'+ str(fees_balances['Matte'] +'\t'+ str(fees_balances['Diana'] +'\t'+ data_evento, feesbalances)
 		
 
 
