@@ -67,7 +67,7 @@ if __name__=='__main__':
     # AddressesData=json.loads(open('addresses.json').read())
     # PrivateData=json.loads(open('private_dict.json').read())
 
-    PrivateData=json.loads(open('private_wallet.json').read())
+    PrivateData=json.loads(open('private_dict.json').read())
     BotsData=json.loads(open('bots_account.json').read())
     DeployedData=json.loads(open('deployed_contracts.json').read())
 
