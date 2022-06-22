@@ -21,8 +21,9 @@ random.seed(secrets.randbits(2048))
 
 def main():
 
-    run_noise_bots(personal_account=personal_account,bots=bots,pools=pools,tokens=tokens,mean_time=30,token_names=token_names,
+    run_noise_bots(personal_account=personal_account,bots=bots,pools=pools,tokens=tokens,mean_time=20,token_names=token_names,
                 token_symbols=token_symbols,bot_ATM=bot_ATM,Paycoin=Paycoin)
+                
     print('everything went through')
 
 if __name__=='__main__':
@@ -105,7 +106,7 @@ if __name__=='__main__':
     """
 
     print('Deploying and filling up faucet')
-    faucet=Contract.from_abi("Faucet",PrivateData['faucet'],Faucet.abi)
+    faucet=Contract.from_abi("Faucet",PrivateData['faucet']['id'],Faucet.abi)
     print('Faucet balance:', ether(faucet.balance()),' eth')
     
     """

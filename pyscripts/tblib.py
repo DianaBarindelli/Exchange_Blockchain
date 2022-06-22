@@ -273,7 +273,7 @@ class market_op():
 
     def swap(self,gas_price):
         """
-        Esegue l'operazione di scambio dei token secondo le variabili estratte. Usa la funzione `swap` scritta sopra
+        Esegue l'operazione di scambio dei token secondo le variabili estratte. Usa la funzione `swap` scritta sopra sopra
         self.pool è il token che detiene e sarà scambiato mentre self.pool2 è quello che voglio acquisire
         `gas_price`: prezzo del gas che si vuole usare. Per le operazioni dei bot forse meglio automatico.
                  calcolarlo con `web3.eth.gasPrice`.
@@ -435,7 +435,7 @@ class ATM():
             self.faucet.withdraw(withdrawamount, {'from': account})
             print(f'Now the balance is {ether(account.balance())} Gwei')
 
-def run_noise_bots(personal_account,bots,max_op,pools,tokens,mean_time,token_names,token_symbols,bot_ATM,Paycoin,counter,Max_operation_setted=False):
+def run_noise_bots(personal_account,bots,pools,tokens,mean_time,token_names,token_symbols,bot_ATM,Paycoin,counter):
     """
     Programma che fa andare gli scambi automatici dei bot una volta riempiti inizialmente gli account.
 
