@@ -512,7 +512,6 @@ def run_noise_bots(personal_account,bots,pools,tokens,mean_time,token_names,toke
 
             if success:
                 i+=1
-                counter[op]+=1
                 print(colored(f'Carried_out_op #{i}','red','on_green'))
                 time.sleep(operation.time)
 
