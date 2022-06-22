@@ -435,7 +435,7 @@ class ATM():
             self.faucet.withdraw(withdrawamount, {'from': account})
             print(f'Now the balance is {ether(account.balance())} Gwei')
 
-def run_noise_bots(personal_account,bots,pools,tokens,mean_time,token_names,token_symbols,bot_ATM,Paycoin,counter):
+def run_noise_bots(personal_account,bots,pools,tokens,mean_time,token_names,token_symbols,bot_ATM,Paycoin):
     """
     Programma che fa andare gli scambi automatici dei bot una volta riempiti inizialmente gli account.
 
