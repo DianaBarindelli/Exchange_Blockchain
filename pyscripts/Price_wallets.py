@@ -108,7 +108,7 @@ check=True
 date=datetime.now()
 currentTime = date.strftime("%H")
 
-while(check==True and int(currentTime)<18)
+while(check==True and int(currentTime)<18):
     time.sleep(5)
     block = web3.eth.get_block('latest')
     if(block['timestamp']>=(block_number+10)):
