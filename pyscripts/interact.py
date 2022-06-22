@@ -33,10 +33,6 @@ def check_input_type(request_string,type_to_check):
 
     return inputa,bool
 
-def main():
-
-    print('inside main')
-
 if __name__=='__main__':
 
     print('\n')
@@ -49,7 +45,7 @@ if __name__=='__main__':
 
     p=project.load('../',name='firstproject')
     p.load_config()
-    from brownie.project.firstproject import Pool, Token, Faucet
+    from brownie.project.firstproject import Pool, Token
 
     """
     Connetto a ropsten e imposto il gas.
@@ -64,39 +60,39 @@ if __name__=='__main__':
     
     """
 
-    # AddressesData=json.loads(open('addresses.json').read())
-    # PrivateData=json.loads(open('private_dict.json').read())
-
+    AddressesData=json.loads(open('addresses.json').read())
     PrivateData=json.loads(open('private_dict.json').read())
-    BotsData=json.loads(open('bots_account.json').read())
-    DeployedData=json.loads(open('deployed_contracts.json').read())
 
     """
-    Pesco dal wallet personale 5 users e 1 bot minter. Nel mio caso il primo è 'cusl', il secondo è 'moppet' e il terzo è
-    'bot_MINTER'. dal 4 all'ottavo sono indirizzi opportunamente riempiti che userò per users.
+    Recupero e connetto l'account personale dell'utente.
     """
+    
     try:
-        personal_accounts=accounts.from_mnemonic(PrivateData['bot_minter']['mnemonic'], count=10)
+        personal=accounts.from_mnemonic(PrivateData['personal_account']['mnemonic'], count=1)
 
     except:
-        print(colored('WARNING: ADD YOUR BIP39 MNEMONIC PHRASE','red'))
+        print(colored('WARNING: ADD YOUR PRIVATE ACCOUNT BIP39 MNEMONIC PHRASE','red'))
         print(colored('To retrieve your BIP39 MNEMONIC, open MetaMask with your bot account, click `MyAccounts`<`Settings`<`Security & Privacy`< `Reveal secret recovery phrase`','red'))
         print(colored('HERE\'S A BIP39 MNEMONIC EXAMPLE: "load ship usual decade human subway pen orbit midnight flag lend surround suit annual canal"','red'))
         exit(-1)
 
-
-    personal=[personal_accounts[i] for i in range(0,2)]
-    bot_minter=personal_accounts[2]
-    personal=bot_minter
-    users=[personal_accounts[i] for i in range(3,8)]
+    """
+    Collego tutti i vari contratti di cui è già stato fatto il deploy per l'interazione
+    """
     
     print('Retrieving token contracts, please wait...')
 
-    Paycoin=Contract.from_abi("Paycoin",DeployedData[bot_minter]['paycoin'],Token.abi)
-    tokens=[Contract.from_abi("Tokens",DeployedData[users[i]]['token'], Token.abi) for i in range(0,5)]
-    pools=[Contract.from_abi("Tokens",DeployedData[users[i]]['pool'], Pool.abi) for i in range(0,5)]
-    token_names=[DeployedData[users[i]]['name'] for i in range(0,5)]
-    token_symbols=[DeployedData[users[i]]['symbol'] for i in range(0,5)]
+    names=['Matteo','Diana','Francesco','Riccardo','Cristiano']
+
+    Paycoin=Contract.from_abi("Paycoin",AddressesData['bot_minter']['paycoin'],Token.abi)
+    tokens=[Contract.from_abi("Tokens",AddressesData[f'{name}']['token'], Token.abi) for name in names]
+    pools=[Contract.from_abi("Tokens",AddressesData[f'{name}']['pool'], Pool.abi) for name in names]
+    token_names=[AddressesData[f'{name}']['token name'] for name in names]
+    token_symbols=[AddressesData[f'{name}']['token symbol'] for name in names]
+
+    """
+    Varie stringhe utili nella UI del programma
+    """
 
     option_list=['BUY','SELL','SWAP']
  
@@ -106,9 +102,15 @@ if __name__=='__main__':
     token_to_buy= 'Please enter the token name you want to buy '
     token_to_sell= 'Please enter the token name you want to sell '
 
-    # Paycoin.mint(bot_minter,100*10**18,{'from':bot_minter})
+    """
+    Printo il balance in Paycoin
+    """
 
     print ('This is your balance: ', ether(Paycoin.balanceOf(personal)),' PcN')
+
+    """
+    Faccio andare il programma all'infinito
+    """
 
     while True:
 
@@ -130,7 +132,7 @@ if __name__=='__main__':
             same= (token_1 == token_2)
 
 
-            while (not bool1) or (not bool2) or same:         #else zio mi hai dato dei nomi sbagliati dei token
+            while (not bool1) or (not bool2) or same:      
 
                 print(colored('\nplease enter token names among the existing ones (AND DIFFERENT ONES!)','red'))
 
@@ -239,7 +241,7 @@ if __name__=='__main__':
         print('Transaction sent, waiting for approval\n\n')
         t.start()
         t.join()
-        print('=========TRANSACTION CARRIED OUT=========')
+        print('=========TRANSACTION CARRYED OUT=========')
         print('\nNew user balance:\n ')
         print('Paycoin balance: ', ether(Paycoin.balanceOf(personal)),' PcN')
         for i in range(0,len(tokens)):
