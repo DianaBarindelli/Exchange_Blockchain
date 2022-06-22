@@ -18,6 +18,12 @@ import sys
     $ python ChallengeManager.py accept 
 '''
 
+p = project.load('/home/cristiano/cartella_test', name = "TokenProject")
+
+p.load_config()
+
+from brownie.project.TokenProject import TokenZ, Challenge
+
 Players = { 'Pacho': '0xc89304bE60b1184281cDacF8e9ADD215B960Fcb8',
             'Citte': '0xebf84b5aa7a66412863F8F66655B5876EF92d91F', 
             'Fra'  : '0x66F26b71404A133F4e478Fb5f52a8105fB324F6e',
@@ -26,32 +32,27 @@ Players = { 'Pacho': '0xc89304bE60b1184281cDacF8e9ADD215B960Fcb8',
 
 
 #alternativamente facciamo un load da un json, la sintassi sara comunque la stessa di qui sopra, tipo:
-f = open('players.json')
-Players = json.load(f)
-f.close()
+#f = open('NomeFile.json')
+#Players = json.load(f)
+#f.close()
 
 network.connect('ropsten')
-network.connect('development')
+#network.connect('development')
 
-PrivateData=json.loads(open('private_dict.json').read())
+print('connesso a ropsten')
+
+PrivateData=json.loads(open('/home/cristiano/cartella_test/scripts/private_dict.json').read())
 myAccount=accounts.from_mnemonic(PrivateData['personal_account']['mnemonic'], count=1)
 
-##############################
+print('caricato account personale di utente')
 
-c = open('challenge.json')
-dataChallenge = json.load(c)
-c.close()
+challenge_address = '0x3D2aD3DF24cE150E3a5a1F2122a660dDB0Eeaf67'
+paytoken_address = '0x83f4d10487dD65E25FD2de52149921aCaF647c05'
 
-###############################
+challenge = Contract.from_abi('Challenge', challenge_address, Challenge.abi)
+paytoken = Contract.from_abi('Paytoken', paytoken_address, TokenZ.abi)
 
-p = open('paycoin.json')
-dataPaycoin = json.load(p)
-p.close()
-
-#################################
-
-challenge = Contract.from_abi(dataChallenge['name'], dataChallenge['address'], dataChallenge['abi'])
-paytoken = Contract.from_abi(dataPaycoin['name'], dataPaycoin['address'], dataPaycoin['abi'])
+print ('caricati indirizzi di challenge e paytoken')
 
 if (len(sys.argv) == 3 and sys.argv[1] == 'launch_1v1'):
     print("++++++++++ LAUNCHING 1 VS 1 CHALLENGE +++++++++++")    
@@ -69,5 +70,21 @@ if (len(sys.argv) == 4 and sys.argv[1] == 'launch_1v2'):
 if (len(sys.argv) == 2 and sys.argv[1] == 'accept'):
     print("++++++++++ ACCEPTING +++++++++++")    
     challenge.accept({'from':myAccount})
+
+if (len(sys.argv) == 1 and sys.argv[1] == 'forcedClosure'):
+    print("++++++++++ forcing closure +++++++++++")    
+    challenge.forcedClosure({'from':myAccount})
+
+if (len(sys.argv) == 1 and sys.argv[1] == 'timeLeft'):
+    print("++++++++++ checking time left +++++++++++")    
+    challenge.timeLeft({'from':myAccount})
+
+if (len(sys.argv) == 2 and sys.argv[1] == 'timeLeft'):
+    print("++++++++++ remaining 1v1: +++++++++++")    
+    challenge.left1v1(Players[sys.argv[2]], {'from':myAccount})
+
+if (len(sys.argv) == 2 and sys.argv[1] == 'timeLeft'):
+    print("++++++++++ remaining 1v2: +++++++++++")    
+    challenge.left1v2(Players[sys.argv[2]], {'from':myAccount})
 
 
