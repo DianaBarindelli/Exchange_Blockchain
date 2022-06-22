@@ -16,7 +16,21 @@ import sys
     
     *** ACCEPT CHALLENGE ***    
     $ python ChallengeManager.py accept 
+    (accept idealmente non lo lanceremo da qua)
+    
+    *** FORCE CLOSURE CHALLENGE ***    
+    $ python ChallengeManager.py forcedClosure 
+
+    *** TIME LEFT ***
+    $ python ChallengeManager.py timeLeft
+
+    *** TIME 1v2 ***
+    $ python ChallengeManager.py left1v1
+
+    *** LEFT 1v1***
+    $ python ChallengeManager.py left1v1
 '''
+
 
 p = project.load('/home/cristiano/cartella_test', name = "TokenProject")
 
@@ -79,11 +93,11 @@ if (len(sys.argv) == 1 and sys.argv[1] == 'timeLeft'):
     print("++++++++++ checking time left +++++++++++")    
     challenge.timeLeft({'from':myAccount})
 
-if (len(sys.argv) == 2 and sys.argv[1] == 'timeLeft'):
+if (len(sys.argv) == 2 and sys.argv[1] == 'left1v1'):
     print("++++++++++ remaining 1v1: +++++++++++")    
     challenge.left1v1(Players[sys.argv[2]], {'from':myAccount})
 
-if (len(sys.argv) == 2 and sys.argv[1] == 'timeLeft'):
+if (len(sys.argv) == 2 and sys.argv[1] == 'left1v2'):
     print("++++++++++ remaining 1v2: +++++++++++")    
     challenge.left1v2(Players[sys.argv[2]], {'from':myAccount})
 
