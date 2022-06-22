@@ -414,6 +414,8 @@ contract Pool is MinterRole, TimeMarket{
         paycoin_IF.approve(poolB_IF.GetAddress(), paycoin_total_B);
         poolB_IF.buy(tokenB_requested); 
         tokenB_IF.transfer(msg.sender, tokenB_requested);
+        
+        uint256 fee = SafeMath.add(fee_A, paycoin_requestd_B_fee);
     
         emit Swapp(msg.sender, address(this), poolB_address, tokenB_requested, tokenA_In, fee ,now);
     
