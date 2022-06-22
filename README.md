@@ -1,6 +1,9 @@
 # Exchange
 Exchange Project for Unimi Blockchain course
 
+### Istruzioni maybe utili:
+Installing OpenZeppelin version 2.5.0 (se hai Brownie) : brownie pm install OpenZeppelin/openzeppelin-contracts@2.5.0
+
 ### TODO:
 
 - spostare i file neòlle cartelle script & contracts
