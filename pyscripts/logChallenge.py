@@ -115,5 +115,5 @@ if len(logs) > 0:
 			printFile("Time: "+event_date)
 			
 	
-    printFile("---END UPDATE "+str(datetime.datetime.now())+"_ _")
+	printFile("---END UPDATE "+str(datetime.datetime.now())+"_ _")
 
