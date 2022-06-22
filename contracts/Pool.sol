@@ -113,11 +113,11 @@ contract Pool is MinterRole, TimeMarket{
 
     bool is_setted;
 
-    event Bought(address buyer, uint256 quantity, uint256 time);
-    event Sold(address seller, uint256 quantity, uint256 time);
-    event Swapp(address swapper, uint256 quantity, uint256 time);
-    event Increase(uint256 quantity, uint256 time);
-    event Decrease(uint256 quantity, uint256 time);
+    event Bought(address buyer, address this_pool, uint256 token_out, uint256 paycoin_in, uint256 fees, uint256 time);
+    event Sold(address seller, address this_pool, uint256 token_in, uint256 paycoin_out, uint256 fees, uint256 time);
+    event Swapp(address swapper, address this_pool, address pool_B, uint256 token_out, uint256 token_in, uint256 fees, uint256 time);
+    event Increase(address increaser, address this_pool, uint256 token_increase, uint256 paycoin_increase, uint256 time);
+    event Decrease(address decreaser, address this_pool, uint256 token_decrease, uint256 paycoin_decrease, uint256 time);
 
     constructor (address token_address, address paycoin_address) public {
 
@@ -224,7 +224,7 @@ contract Pool is MinterRole, TimeMarket{
         token_IF.transferFrom(msg.sender, address(this), token_ToAdd);
         paycoin_IF.transferFrom(msg.sender, address(this), paycoin_ToAdd);
         
-        emit Increase(token_ToAdd, now);
+        emit Increase(msg.sender, address(this), token_ToAdd, paycoin_ToAdd, now);
         
         set_K();
     }
@@ -263,7 +263,7 @@ contract Pool is MinterRole, TimeMarket{
         token_IF.transfer(msg.sender, token_ToSub);
         paycoin_IF.transfer(msg.sender, paycoin_ToSub);
         
-        emit Decrease(token_ToSub, now);
+        emit Decrease(msg.sender, address(this), token_ToSub, paycoin_ToSub, now);
         
         set_K();
     }
@@ -325,8 +325,9 @@ contract Pool is MinterRole, TimeMarket{
 
         paycoin_IF.transfer(_owner, fee);
         token_IF.transfer(msg.sender,token_Out);
+        uint256 fee_new = SafeMath.add(paycoin_In,fee);
 
-        emit Bought (msg.sender, token_Out, now);
+        emit Bought(msg.sender, address(this), token_Out, fee_new, fee, now);
 
     }
 
@@ -363,7 +364,7 @@ contract Pool is MinterRole, TimeMarket{
         paycoin_IF.transfer(_owner, fee);
         paycoin_IF.transfer(msg.sender, paycoin_Out_toB);
         
-        emit Sold(msg.sender, token_In, now);
+        emit Sold(msg.sender, address(this), token_In, paycoin_Out_toB, fee, now);
     }
 
     /**
@@ -414,7 +415,7 @@ contract Pool is MinterRole, TimeMarket{
         poolB_IF.buy(tokenB_requested); 
         tokenB_IF.transfer(msg.sender, tokenB_requested);
     
-        emit Sold(msg.sender, tokenB_requested, now);
+        emit Swapp(msg.sender, address(this), poolB_address, tokenB_requested, tokenA_In, fee ,now);
     
     }
 
