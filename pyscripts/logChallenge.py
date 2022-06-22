@@ -69,15 +69,15 @@ if len(logs) > 0:
 			data_decoded = eth_abi.decode_abi(['uint256','address','address','uint256'], HexBytes(data))
 			event_date = str(t.strftime("%Y-%m-%d %H:%M:%S", t.localtime(data_decoded[3])))
             
-            print(data_decoded[0]) #challenge number
+            		print(data_decoded[0]) #challenge number
 			print("Launcher:",data_decoded[1])
 			print("Target:",data_decoded[2])
-            print("Time: "+event_date)
+            		print("Time: "+event_date)
 			#print(time.strftime("%Z - %Y/%m/%d, %H:%M:%S", str(time.localtime(data_decoded[3]))))
 			printFile(data_decoded[0]) #challenge number
 			printFile("Launcher: "+data_decoded[1])
 			printFile("Target: "+data_decoded[2])
-            printFile("Time: "+event_date)
+            		printFile("Time: "+event_date)
 			#printFile(time.strftime("%Z - %Y/%m/%d, %H:%M:%S"+str(time.localtime(data_decoded[3]))))
 			
 		elif sign == event1vs2:
@@ -90,15 +90,15 @@ if len(logs) > 0:
 			print(data_decoded[0]) #challenge number
 			print("Launcher:",data_decoded[1])
 			print("Target1:",data_decoded[2])
-            print("Time: "+event_date)
-            print("Target2:",data_decoded[3])
-            print("Time: "+event_date)
+            		print("Time: "+event_date)
+            		print("Target2:",data_decoded[3])
+            		print("Time: "+event_date)
 			printFile(data_decoded[0]) #challenge number
 			printFile("Launcher:",data_decoded[1])
 			printFile("Target1:",data_decoded[2])
-            printFile("Time: "+event_date)
-            printFile("Target2:",data_decoded[3])
-            printFile("Time: "+event_date)
+            		printFile("Time: "+event_date)
+            		printFile("Target2:",data_decoded[3])
+            		printFile("Time: "+event_date)
 			
 		elif sign == eventEnd:		
 			print("-- Challenge Closed --")
