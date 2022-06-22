@@ -4,28 +4,53 @@ import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/token/ERC20/IERC20.s
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/token/ERC20/ERC20.sol";
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/token/ERC20/ERC20Detailed.sol";
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/token/ERC20/ERC20Mintable.sol";
+import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/token/ERC20/ERC20Burnable.sol";
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/math/SafeMath.sol";
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/math/Math.sol";
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/ownership/Ownable.sol";
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/access/roles/WhitelistedRole.sol";
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/access/roles/MinterRole.sol";
-import "/home/cristiano/blockchain_test/challenge/contracts/token.sol"; //right path needed
-//import "./token.sol";
-//import "./TimeMarket.sol";
 
 
-//contract Challenge is WhitelistedRole, TimeMarket {
-contract Challenge is WhitelistedRole {
+// ***** DA AGGIUNGERE NUMERO MINIMO DI CHALLENGE *******
+
+contract TimeMarketZ {
+
+    uint256 closingTime;
+    
+    modifier TimeMarketZ() {
+
+        require (MarketOpen(), "Market opening times 9.00 - 18.00");
+        _;
+
+    }
+
+    function MarketOpen() public view returns(bool) {
+
+        uint256 time=block.timestamp % (1 days);
+        return (time > 7 hours ) && (time < 16 hours);
+
+
+    }
+
+}
+
+contract TokenZ is ERC20, ERC20Mintable, ERC20Detailed, ERC20Burnable {
+    constructor (string memory name, string memory symbol, uint8 decimals) ERC20Detailed(name, symbol, decimals) public {}
+
+}
+
+
+contract Challenge is WhitelistedRole, TimeMarketZ {
     
     using SafeMath for uint256;
 	
-    Token _paytoken; 
+    TokenZ _paytoken; 
 
     uint256 _startTime; 
     address _target1; 
     address _target2;
     address _launcher;
-    address _lastWinner;
     uint256 _challengeNumber;
 
     uint256 public constant _waitingTime = 20; // ... seconds 
@@ -53,11 +78,11 @@ contract Challenge is WhitelistedRole {
     event ChallengeEnded(
         uint256 challengeNum,
         address winner,
-        uint256 winning_time,
+        uint256 winning_time
     );
 
 	constructor(address paytokenAddr, address [] memory allowlist) public {	
-    	_paytoken = Token(paytokenAddr);
+    	_paytoken = TokenZ(paytokenAddr);
 
         addWhitelisted(allowlist[0]);
         addWhitelisted(allowlist[1]);
@@ -70,11 +95,10 @@ contract Challenge is WhitelistedRole {
     
     // LAUNCHING FUNCTIONS
 
-    //function launch_1v1(address target)  onlyWhitelisted onlyWorkingTimes public {
-    function launch_1v1(address target) public {
-
+    function launch_1v1(address target)  onlyWhitelisted TimeMarketZ public {
+    
         require(_startTime == 0, "A challenge has already been launched.");
-        //require(whitelist[target], "You shall challenge only whitelisted");
+        require(isWhitelisted(target), "You shall challenge only whitelisted");
         
         require(address(msg.sender) != address(target), "You shall not challenge yourself.");
         
@@ -83,7 +107,7 @@ contract Challenge is WhitelistedRole {
         _launched1v1[msg.sender] += 1;
 		// increasing the number of challenges of the launcher
 
-        _paytoken.mint(msg.sender, 1000 * (10 ** _paytoken.decimals()));
+        _paytoken.transfer(msg.sender, 1000 * (10 ** _paytoken.decimals()));
         // reward for having started the challenge
         
         _launcher = address(msg.sender);
@@ -95,11 +119,11 @@ contract Challenge is WhitelistedRole {
         emit Challenge1v1Launched(_challengeNumber, _launcher, _target1, _startTime);
     }
 
-    //function launch_1v2(address target1, address target2)  onlyWhitelisted onlyWorkingTimes public {
-    function launch_1v2(address target1, address target2)   public {
+    function launch_1v2(address target1, address target2)  onlyWhitelisted TimeMarketZ public {
+
         require(_startTime == 0, "A challenge has already been launched.");
-        //require(whitelist[target1], "You shall challenge only whitelisted");
-        //require(whitelist[target2], "You shall challenge only whitelisted");
+        require(isWhitelisted(target1), "You shall challenge only whitelisted");
+        require(isWhitelisted(target2), "You shall challenge only whitelisted");
 
         require(address(msg.sender) != address(target1) && address(msg.sender) != address(target2) && address (target1)!= address(target2), "You shall not challenge yourself OR the targets must be different addresses.");
 
@@ -108,7 +132,7 @@ contract Challenge is WhitelistedRole {
         _launched1v2[msg.sender] += 1;
 		// increasing the number of challenges of the launcher        
 
-        _paytoken.mint(msg.sender, 2000 * (10 ** _paytoken.decimals()));
+        _paytoken.transfer(msg.sender, 2000 * (10 ** _paytoken.decimals()));
         // reward for having started the challenge
 
         _launcher = address(msg.sender);
@@ -121,8 +145,7 @@ contract Challenge is WhitelistedRole {
         emit Challenge1v2Launched(_challengeNumber, _launcher, _target1, _target2, _startTime);
     }
 
-    //function accept() onlyWhitelisted onlyWorkingTimes public {
-    function accept()  public {
+    function accept() onlyWhitelisted TimeMarketZ public {
         
         require(msg.sender == _target1 || msg.sender == _target2 || msg.sender == _launcher , "You are not currently involved in a challenge.");
         //msg.sender must be the launcher or target
@@ -132,7 +155,6 @@ contract Challenge is WhitelistedRole {
         uint256 endTime = _startTime + _waitingTime * 1 seconds; 
 
         if (now < endTime) { 
-            //revert(string(abi.encodePacked("WAIT: challenge starts in", Math.uint2str(_startTime + endTime * 1 seconds - now), " seconds from now.")));
             revert("WAIT: the challenge is about to start!");
         }
         //20 seconds must elapse before anyone can respond
@@ -140,14 +162,12 @@ contract Challenge is WhitelistedRole {
         else if (now > endTime){
             
             if (_target1 != address(0) && _target2 == address(0)){ 
-                _paytoken.mint(msg.sender, 10000 * (10 ** _paytoken.decimals()));
-                _lastWinner = msg.sender;
+                _paytoken.transfer(msg.sender, 10000 * (10 ** _paytoken.decimals()));
             }
             // challenge 1v1 had been launched: the reward is 10000
             
             else if (_target1 != address(0) && _target2 != address(0)){ // challenge 1v2 launched
-                _paytoken.mint(msg.sender, 50000 * (10 ** _paytoken.decimals()));
-                _lastWinner = msg.sender;
+                _paytoken.transfer(msg.sender, 50000 * (10 ** _paytoken.decimals()));
             }        
             // challenge 1v2 had been launched: the reward is 50000
 
@@ -164,7 +184,7 @@ contract Challenge is WhitelistedRole {
     }
 
     // checking the status of the challenge
-    function checkChallengeStatus() public returns (string memory){
+    function checkChallengeStatus() public view returns (string memory){
         if(_launcher == address(0)){
             revert("CHALLENGE NOT ACTIVE");
         } 
@@ -175,14 +195,13 @@ contract Challenge is WhitelistedRole {
     
     // forcedClosure, callable by anyone, after 5 minutes from the end of a challenge
     // in order not to leave any challenge open (useful after calling checkChallengeStatus())
-    function forcedClosure() public { 
+    function forcedClosure() onlyWhitelisted public { 
         require(now > _startTime + _waitingTime + 30 minutes);
         _launcher = address(0); // Reset sender
         _target1 = address(0); // Reset target
         _target2 = address(0);
-        _lastWinner = address(0);
         _startTime = 0; // Reset time
-        emit ChallengeEnded(currentUID(), msg.sender, now, _lastWinner);
+        emit ChallengeEnded(_challengeNumber, msg.sender, now);
     }
 
 
@@ -206,6 +225,3 @@ contract Challenge is WhitelistedRole {
     }
 
 }
-
-
-    

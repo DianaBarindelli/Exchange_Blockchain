@@ -113,11 +113,11 @@ contract Pool is MinterRole, TimeMarket{
 
     bool is_setted;
 
-    event Bought(address buyer, uint256 token_out, uint256 paycoin_in, uint256 fees, uint256 time);
-    event Sold(address seller, uint256 token_in, uint256 paycoin_out, uint256 fees, uint256 time);
-    event Swapp(address swapper, uint256 token_out, uint256 token_in, uint256 fees, uint256 time);
-    event Increase(uint256 token_increase, uint256 time);
-    event Decrease(uint256 token_decrease, uint256 time);
+    event Bought(address buyer, uint256 quantity, uint256 time);
+    event Sold(address seller, uint256 quantity, uint256 time);
+    event Swapp(address swapper, uint256 quantity, uint256 time);
+    event Increase(uint256 quantity, uint256 time);
+    event Decrease(uint256 quantity, uint256 time);
 
     constructor (address token_address, address paycoin_address) public {
 
@@ -167,7 +167,7 @@ contract Pool is MinterRole, TimeMarket{
     /**
      *
      * Function set_K, is the function used to set the constant which
-     * define token price with hyperbole rule.
+     * define token price with ellipse rule.
      * K was already setted in pool_set() function, but another function
      * is need after increase_Token and decrease_Token functions are
      * called
@@ -300,7 +300,7 @@ contract Pool is MinterRole, TimeMarket{
      * pool with paycoins. It requires token's quantity which are required
      * by the msg.sender.
      * The token's price are calculated with Uniswap rule
-     * to be on hyperbole.
+     * to be on ellipse.
      *
      * Transaction fee are sended to the Pool's owner.
      * This function Emits a {Buy} event indicating buyer's address,
@@ -326,7 +326,7 @@ contract Pool is MinterRole, TimeMarket{
         paycoin_IF.transfer(_owner, fee);
         token_IF.transfer(msg.sender,token_Out);
 
-        emit Bought(msg.sender, token_Out, (paycoin_In+fee), fee, now);
+        emit Bought (msg.sender, token_Out, now);
 
     }
 
@@ -335,7 +335,7 @@ contract Pool is MinterRole, TimeMarket{
      * in exchange for paycoins. Itrequires token's quantity that the
      * msg.sender wants to sell.
      * The token's price are calculated with Uniswap rule
-     * to be on hyperbole.
+     * to be on ellipse.
      *
      * Transaction fee are sended to the Pool's owner.
      * This function Emits a {Sell} event indicating seller's address,
@@ -363,7 +363,7 @@ contract Pool is MinterRole, TimeMarket{
         paycoin_IF.transfer(_owner, fee);
         paycoin_IF.transfer(msg.sender, paycoin_Out_toB);
         
-        emit Sold(msg.sender, token_In, paycoin_Out_toB, fee, now);
+        emit Sold(msg.sender, token_In, now);
     }
 
     /**
@@ -372,7 +372,7 @@ contract Pool is MinterRole, TimeMarket{
      * pool (named poolB). There is a double exchange between this pool
      * and poolB, and between this pool and msg.sender.
      * The token's price are calculated with Uniswap rule
-     * to be on hyperbole.
+     * to be on ellipse.
      *
      * Transaction fee are sended to the Pool's owner: both for this pool
      * and poolB
@@ -414,7 +414,7 @@ contract Pool is MinterRole, TimeMarket{
         poolB_IF.buy(tokenB_requested); 
         tokenB_IF.transfer(msg.sender, tokenB_requested);
     
-        emit Swapp(msg.sender, tokenB_requested, tokenA_In, fee ,now);
+        emit Sold(msg.sender, tokenB_requested, now);
     
     }
 
