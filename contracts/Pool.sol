@@ -113,11 +113,11 @@ contract Pool is MinterRole, TimeMarket{
 
     bool is_setted;
 
-    event Bought(address buyer, uint256 quantity, uint256 time);
-    event Sold(address seller, uint256 quantity, uint256 time);
-    event Swapp(address swapper, uint256 quantity, uint256 time);
-    event Increase(uint256 quantity, uint256 time);
-    event Decrease(uint256 quantity, uint256 time);
+    event Bought(address buyer, uint256 token_out, uint256 paycoin_in, uint256 fees, uint256 time);
+    event Sold(address seller, uint256 token_in, uint256 paycoin_out, uint256 fees, uint256 time);
+    event Swapp(address swapper, uint256 token_out, uint256 token_in, uint256 fees, uint256 time);
+    event Increase(uint256 token_increase, uint256 time);
+    event Decrease(uint256 token_decrease, uint256 time);
 
     constructor (address token_address, address paycoin_address) public {
 
@@ -326,7 +326,7 @@ contract Pool is MinterRole, TimeMarket{
         paycoin_IF.transfer(_owner, fee);
         token_IF.transfer(msg.sender,token_Out);
 
-        emit Bought (msg.sender, token_Out, now);
+        emit Bought(msg.sender, token_Out, (paycoin_In+fee), fee, now);
 
     }
 
@@ -363,7 +363,7 @@ contract Pool is MinterRole, TimeMarket{
         paycoin_IF.transfer(_owner, fee);
         paycoin_IF.transfer(msg.sender, paycoin_Out_toB);
         
-        emit Sold(msg.sender, token_In, now);
+        emit Sold(msg.sender, token_In, paycoin_Out_toB, fee, now);
     }
 
     /**
@@ -414,7 +414,7 @@ contract Pool is MinterRole, TimeMarket{
         poolB_IF.buy(tokenB_requested); 
         tokenB_IF.transfer(msg.sender, tokenB_requested);
     
-        emit Sold(msg.sender, tokenB_requested, now);
+        emit Swapp(msg.sender, tokenB_requested, tokenA_In, fee ,now);
     
     }
 
