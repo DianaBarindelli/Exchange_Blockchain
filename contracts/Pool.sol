@@ -325,9 +325,9 @@ contract Pool is MinterRole, TimeMarket{
 
         paycoin_IF.transfer(_owner, fee);
         token_IF.transfer(msg.sender,token_Out);
-        uint256 fee_new = SafeMath.add(paycoin_In,fee);
+        //uint256 fee_new = SafeMath.add(paycoin_In,fee);
 
-        emit Bought(msg.sender, address(this), token_Out, fee_new, fee, now);
+        emit Bought(msg.sender, address(this), token_Out, paycoin_In, fee, now);
 
     }
 
