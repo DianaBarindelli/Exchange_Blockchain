@@ -287,8 +287,9 @@ contract Pool is MinterRole, TimeMarket{
     function paycoins_needed_to_increase_Token (uint256 token_ToAdd) public view onlyMinter pool_is_setted returns (uint256) {
 
         require (token_ToAdd < max_increase_decrease_amount, "max_increase_decrease_amount exceeded");
-        uint256 M = SafeMath.div(token_IF.balanceOf(address(this)), paycoin_IF.balanceOf(address(this)));
-        uint256 new_paycoin_amount = SafeMath.div(SafeMath.add(token_IF.balanceOf(address(this)), token_ToAdd), M);
+        //uint256 M = SafeMath.div(token_IF.balanceOf(address(this)), paycoin_IF.balanceOf(address(this)));
+        //uint256 new_paycoin_amount = SafeMath.div(SafeMath.add(token_IF.balanceOf(address(this)), token_ToAdd), M);
+        uint256 new_paycoin_amount = SafeMath.div(SafeMath.mul(SafeMath.add(token_IF.balanceOf(address(this)),token_ToAdd),paycoin_IF.balanceOf(address(this))),token_IF.balanceOf(address(this)));
         uint256 paycoin_ToAdd = SafeMath.sub(new_paycoin_amount, paycoin_IF.balanceOf(address(this)));
 
         return paycoin_ToAdd;
