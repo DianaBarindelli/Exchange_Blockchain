@@ -11,9 +11,6 @@ import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/ownership/Ownable.so
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/access/roles/WhitelistedRole.sol";
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/access/roles/MinterRole.sol";
 
-
-// ***** DA AGGIUNGERE NUMERO MINIMO DI CHALLENGE *******
-
 contract TimeMarketZ {
 
     uint256 closingTime;
