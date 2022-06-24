@@ -558,7 +558,7 @@ def mint_paycoin_to_bots(bots,paycoin,paycoin_minter):
             gas_price=get_gas_price()
             thr.append(threading.Thread(target=paycoin.mint, args=(bot, PcN_amount, {'from':paycoin_minter, 'gas_price':gas_price})))
             thr[-1].start()
-            time.sleep(0.1)
+            time.sleep(.1)
 
     for t in thr:
         t.join()  
