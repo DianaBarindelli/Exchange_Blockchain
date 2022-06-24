@@ -11,6 +11,9 @@ import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/ownership/Ownable.so
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/access/roles/WhitelistedRole.sol";
 import "OpenZeppelin/openzeppelin-contracts@2.5.0/contracts/access/roles/MinterRole.sol";
 
+
+// ***** DA AGGIUNGERE NUMERO MINIMO DI CHALLENGE *******
+
 contract TimeMarketZ {
 
     uint256 closingTime;
@@ -49,7 +52,6 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
     address _target2;
     address _launcher;
     uint256 _challengeNumber;
-
     uint256 public constant _waitingTime = 20; // ... seconds 
     
     uint256 public constant _max1v1 = 10; // maximum number of 1v1 challenges
@@ -73,6 +75,13 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
     );
 
     event ChallengeEnded(
+        uint256 challengeNum,
+        address winner,
+        uint256 winning_time,
+        string challengeType
+    );
+
+    event ChallengeClosed(
         uint256 challengeNum,
         address winner,
         uint256 winning_time
@@ -148,6 +157,8 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
 
         uint256 endTime = _startTime + _waitingTime * 1 seconds; 
 
+        string memory whichChallenge;
+
         if (now < endTime) { 
             revert("WAIT: the challenge is about to start!");
         }
@@ -157,11 +168,13 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
             
             if (_target1 != address(0) && _target2 == address(0)){ 
                 _paytoken.transfer(msg.sender, 10000 * (10 ** 18));
+                whichChallenge = "1v1";
             }
             // challenge 1v1 had been launched: the reward is 10000
             
             else if (_target1 != address(0) && _target2 != address(0)){ // challenge 1v2 launched
                 _paytoken.transfer(msg.sender, 50000 * (10 ** 18));
+                whichChallenge = "1v2";
             }        
             // challenge 1v2 had been launched: the reward is 50000
 
@@ -173,7 +186,7 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
             _startTime = 0; // Reset time
             endTime=0;
 
-            emit ChallengeEnded(_challengeNumber, msg.sender, now);
+            emit ChallengeEnded(_challengeNumber, msg.sender, now, whichChallenge);
         }
     }
 
@@ -202,7 +215,7 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
         _target1 = address(0); // Reset target
         _target2 = address(0);
         _startTime = 0; // Reset time
-        emit ChallengeEnded(_challengeNumber, msg.sender, now);
+        emit ChallengeClosed(_challengeNumber, msg.sender, now);
     }
 
 
