@@ -25,10 +25,15 @@ import sys
     $ python ChallengeManager.py timeLeft
 
     *** TIME 1v2 ***
-    $ python ChallengeManager.py left1v1
+    $ python ChallengeManager.py left1v1 NomeUtente
 
     *** LEFT 1v1***
-    $ python ChallengeManager.py left1v1
+    $ python ChallengeManager.py left1v1 NomeUtente
+    
+    *** BALANCE OF USER ***
+    $ python ChallengeManager.py balanceOf NomeUtente
+    
+    
 '''
 
 #*********************************** OCCHIO AL PATH CORRETTO *****************************
@@ -104,6 +109,6 @@ if (len(sys.argv) == 3 and sys.argv[1] == 'left1v2'):
     print(challenge.left1v2(Players[sys.argv[2]], {'from':myAccount}))
 
 if (len(sys.argv) == 3 and sys.argv[1] == 'balanceOf' and sys.argv[2] in playersList):
-    print("++++++++++ remaining 1v2: +++++++++++")    
+    print(f"++++++++++ {sys.argv[2]} +++++++++++")    
     print(paytoken.balanceOf(Players[sys.argv[2]], {'from':myAccount}))
 
