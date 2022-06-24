@@ -99,15 +99,12 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
     
         require(_startTime == 0, "A challenge has already been launched.");
         require(isWhitelisted(target), "You shall challenge only whitelisted");
-        
         require(address(msg.sender) != address(target), "You shall not challenge yourself.");
-        
         require(_launched1v1[msg.sender] < _max1v1, "Maximum challenges exceded.");
         // number of challenges has a limit
         _launched1v1[msg.sender] += 1;
 		// increasing the number of challenges of the launcher
-
-        _paytoken.transfer(msg.sender, 1000 * (10 ** _paytoken.decimals()));
+        _paytoken.transfer(msg.sender, 1000 * (10 ** 18));
         // reward for having started the challenge
         
         _launcher = address(msg.sender);
@@ -132,7 +129,7 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
         _launched1v2[msg.sender] += 1;
 		// increasing the number of challenges of the launcher        
 
-        _paytoken.transfer(msg.sender, 2000 * (10 ** _paytoken.decimals()));
+        _paytoken.transfer(msg.sender, 2000 * (10 ** 18));
         // reward for having started the challenge
 
         _launcher = address(msg.sender);
@@ -162,12 +159,12 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
         else if (now > endTime){
             
             if (_target1 != address(0) && _target2 == address(0)){ 
-                _paytoken.transfer(msg.sender, 10000 * (10 ** _paytoken.decimals()));
+                _paytoken.transfer(msg.sender, 10000 * (10 ** 18));
             }
             // challenge 1v1 had been launched: the reward is 10000
             
             else if (_target1 != address(0) && _target2 != address(0)){ // challenge 1v2 launched
-                _paytoken.transfer(msg.sender, 50000 * (10 ** _paytoken.decimals()));
+                _paytoken.transfer(msg.sender, 50000 * (10 ** 18));
             }        
             // challenge 1v2 had been launched: the reward is 50000
 
@@ -183,6 +180,13 @@ contract Challenge is WhitelistedRole, TimeMarketZ {
         }
     }
 
+    function getChallengeNumber () public view returns (uint){
+        return _challengeNumber;
+    }
+
+    function getPaytokenDecimals () public view returns (uint){
+        return _paytoken.decimals();
+    }
     // checking the status of the challenge
     function checkChallengeStatus() public view returns (string memory){
         if(_launcher == address(0)){
