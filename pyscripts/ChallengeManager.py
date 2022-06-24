@@ -31,8 +31,9 @@ import sys
     $ python ChallengeManager.py left1v1
 '''
 
-
-p = project.load('/home/cristiano/cartella_test', name = "TokenProject")
+#*********************************** OCCHIO AL PATH CORRETTO *****************************
+p = project.load('/home/cristiano/cartella_test', name = "TokenProject") 
+#*****************************************************************************************
 
 p.load_config()
 
@@ -55,6 +56,7 @@ network.connect('ropsten')
 
 print('Connesso a ropsten')
 
+#*********************************** OCCHIO AL PATH CORRETTO *****************************
 PrivateData=json.loads(open('/home/cristiano/cartella_test/scripts/private_dict.json').read())
 myAccount=accounts.from_mnemonic(PrivateData['personal_account']['mnemonic'], count=1)
 
