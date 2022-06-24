@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 
 from lib2to3.pgen2 import token
@@ -17,7 +18,7 @@ def operation_type(asking_string,option_list):
 
     temp_string=''
     for i in range(0,len(option_list)):
-        temp_string+='{'+f'{option_list[i]}'+'}'
+        temp_string+='[ '+f'{option_list[i]}'+' ]'
     request_string=asking_string+temp_string+str(': ')
 
     operation_type=input(request_string)
@@ -90,11 +91,21 @@ if __name__=='__main__':
     token_names=[AddressesData[f'{name}']['token name'] for name in names]
     token_symbols=[AddressesData[f'{name}']['token symbol'] for name in names]
 
+    for name in names:
+        if personal.address==AddressesData[name]['id']:
+            personal_pool_id=AddressesData[name]['pool']
+            personal_token_id=AddressesData[name]['token']
+            personal_token_name=AddressesData[name]['token name']
+            personal_token_symbol=AddressesData[name]['token symbol']
+
+    personal_pool=Contract.from_abi('Pool',personal_pool_id,Pool.abi)
+    personal_token=Contract.from_abi('Token',personal_token_id,Token.abi)
+
     """
     Varie stringhe utili nella UI del programma
     """
 
-    option_list=['BUY','SELL','SWAP']
+    option_list=['BUY','SELL','SWAP','INCREASE','DECREASE']
  
     op_type_asking='Please enter the operation you want to carry out '
     token1_asking_swap='Please enter the token name you want to trade in the SWAP '
@@ -148,24 +159,25 @@ if __name__=='__main__':
                     
                 yourtoken1balance=ether(tokens[token_names.index(token_1)].balanceOf(personal))
                 print(f'Ok, we are going to swap {token_1} with {token_2}')
-                print('Your current balance of token 1 is: ', yourtoken1balance,f'{token_symbols[token_names.index(token_1)]}')
-                amount_1,typebool=check_input_type(f'Please enter the amount of {token_1} you want to trade '+colored('WITHOUT *10**18 NOTATION, IT WILL BE  ADDED AUTOMATICALLY: ','red'), int)
+                print(f'Your current balance of {token_1} is: ', yourtoken1balance,f'{token_symbols[token_names.index(token_1)]}')
+                amount_2,typebool=check_input_type(f'Please enter the amount of {token_2} you want to acquire '+colored('WITHOUT *10**18 NOTATION, IT WILL BE  ADDED AUTOMATICALLY: ','red'), float)
                 while not typebool:
                     print('Please enter an FLOAT amount', colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'))
-                    amount_1,typebool=check_input_type(f'Please enter the amount of {token_1} you want to trade: ', float)
-                amount_1=float(amount_1)
-                checkedbalance=yourtoken1balance>=amount_1
-                    
+                    amount_2,typebool=check_input_type(f'Please enter the amount of {token_2} you want to acquire: ', float)
+                amount_2=float(amount_2)
+                amount_1_needed=ether(pools[token_names.index(token_1)].get_swap_price(pools[token_names.index(token_2)], amount_2*10**18))
+                checkedbalance=yourtoken1balance>=amount_1_needed
+                
                 if not checkedbalance:
                     print(colored(f'Your {token_1} balance is not sufficient to carry out the operation!','red'))
-                    print(f'account {token_1} balance: ',token_symbols[token_names.index(token_1)])
+                    print('ahahahaha',ether(pools[token_names.index(token_1)].get_swap_price(pools[token_names.index(token_2)], amount_2*10**18)))
+                    print(f'account {token_1} balance: ',yourtoken1balance,token_symbols[token_names.index(token_1)],' you need instead ',ether(pools[token_names.index(token_1)].get_swap_price(pools[token_names.index(token_2)], amount_2*10**18)),f' {token_symbols[token_names.index(token_1)]}!')
                     print('EXITING THE PROGRAM')
                     exit(-1)
                 
-            amount_of_token_2=ether(pools[token_names.index(token_2)].How_Many_Token(pools[token_names.index(token_1)].Get_Token_Price(amount_1*10**18)))  #il numero dei token 2 che si riesce a comprare è calcolato sul valore in paycoin del token 1
-            print(f'SWAPPING {amount_1} {token_symbols[token_names.index(token_1)]} for {amount_of_token_2} {token_symbols[token_names.index(token_2)]}')
+            print(f'SWAPPING {amount_2} {token_symbols[token_names.index(token_2)]} for {amount_1_needed} {token_symbols[token_names.index(token_1)]}')
             gas_price=get_gas_price()
-            t=threading.Thread(target=swap, args=(pools[token_names.index(token_1)],pools[token_names.index(token_2)],tokens[token_names.index(token_1)],amount_1*10**18,personal,gas_price))
+            t=threading.Thread(target=swap, args=(pools[token_names.index(token_1)],pools[token_names.index(token_2)],tokens[token_names.index(token_1)],amount_2*10**18,personal,gas_price))
 
         elif op_type=='BUY':
 
@@ -186,7 +198,7 @@ if __name__=='__main__':
                 print('Your current Paycoin balance is: ', your_pcn_balance,' PcN')
                 amount,typebool=check_input_type(f'Please enter the amount of {token_to_buy} you want to buy'+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), float)
                 while not typebool:
-                    print('Please enter an INT amount!')
+                    print('Please enter a float amount!')
                     amount,typebool=check_input_type(f'Please enter the amount of {token_to_buy} you want to buy'+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), float)
 
                 amount=float(amount)
@@ -200,6 +212,83 @@ if __name__=='__main__':
                 print(f'BUYING {amount} {token_symbols[token_names.index(token_to_buy)]} using {amount_in_pcn} PcN')
                 gas_price=get_gas_price()
                 t=threading.Thread(target=buy, args=(Paycoin,pools[token_names.index(token_to_buy)],amount*10**18,personal,gas_price))
+
+        elif op_type=='INCREASE':
+
+            checkedbalance=False
+            while not checkedbalance:
+                    
+                your_pcn_balance=ether(Paycoin.balanceOf(personal))
+                your_token_balance=ether(personal_token.balanceOf(personal))
+                print('Your current Paycoin balance is: ', your_pcn_balance,' PcN')
+                print('Your current token balance is: ', your_token_balance,f' {personal_token_symbol}')
+
+                amount,typebool=check_input_type(f'Please enter the amount of {personal_token_name} you want to put in the pool to increase liquidity '+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), float)
+                while not typebool:
+                    print('Please enter a float amount!')
+                    amount,typebool=check_input_type(f'Please enter the amount of {personal_token_name} you want to put in the pool to increase liquidity '+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), float)
+
+                amount=float(amount)
+                paycoin_ToAdd = personal_pool.paycoins_needed_to_increase_Token(amount*10**18,{'from':personal})
+
+                lets_get_real_amount=amount*1.05
+                lets_get_real_paycoin=paycoin_ToAdd*1.05
+
+                print('\nYou are going to pay', ether(paycoin_ToAdd), f'PcN to increase liquidity with {amount} {personal_token_symbol}')
+                print('Checking your balances...')
+
+                bool1=lets_get_real_amount>=ether(personal_token.balanceOf(personal))
+                bool2=lets_get_real_paycoin>=ether(Paycoin.balanceOf(personal))
+
+                checkedbalance= bool1 and bool2
+                
+                if not checkedbalance:
+                    print(colored(f'Maybe your Paycoin balance is not enough to increase liquidity, you have {your_pcn_balance} PcN, you need {lets_get_real_paycoin} PcN!','red'))
+                    print(colored(f'Maybe your token balance is not enough, you have {your_tkn_balance} {personal_token_symbol}, you need {lets_get_real_amount} {personal_token_symbol}!'))
+                    print('Terminating the program')
+                    exit(-1)
+
+                print(f'INCREASING LIQUIDITY, this could take a while...')
+                thr=[]
+                gas_price=get_gas_price()
+                print('approving personal token')
+                thr.append(threading.Thread(target=personal_token.approve, args=(personal_pool,amount*10**18*1.05,{'from': personal})))
+                thr[-1].start()
+                thr.append(threading.Thread(Paycoin.approve, args=(personal_pool,paycoin_ToAdd*1.05,{'from': personal})))
+                thr[-1].start()
+                for t in thr:
+                    t.join()
+                print('Increasing:')
+                gas_price=get_gas_price()
+                t=threading.Thread(target=personal_pool.increase_Token, args=(amount*10**18,{'from':personal}))
+
+        elif op_type=='DECREASE':
+
+            checkedbalance=False
+            while not checkedbalance:
+                    
+                your_pool_balance=ether(personal_token.balanceOf(personal_pool))
+                print('Your current Paycoin balance is: ', your_pcn_balance,' PcN')
+                print('Your current token balance is: ', your_token_balance,f' {personal_token_symbol}')
+
+                amount,typebool=check_input_type(f'Please enter the amount of {personal_token_name} you want to withdraw from the pool to decrease liquidity '+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), float)
+                while not typebool:
+                    print('Please enter a float amount!')
+                    amount,typebool=check_input_type(f'Please enter the amount of {personal_token_name} you want to withdraw from the pool to decrease liquidity '+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), float)
+
+                amount=float(amount)
+                print('Checking your balances...')
+
+                checkedbalance=amount>=ether(personal_token.balanceOf(personal_pool))
+                
+                if not checkedbalance:
+                    print(colored(f'Pool\'s token balance is not enough, it has {your_pool_balance} {personal_token_symbol}, you wanted {amount} {personal_token_symbol}!'))
+                    print('Terminating the program')
+                    exit(-1)
+
+                print(f'DECREASING LIQUIDITY, this could take a while...')
+                gas_price=get_gas_price()
+                t=threading.Thread(target=personal_pool.decrease_Token, args=(amount*10**18,{'from':personal}))
 
         else:
 
@@ -218,7 +307,7 @@ if __name__=='__main__':
                 your_tkn_balance=ether(tokens[token_names.index(token_to_sell)].balanceOf(personal))
                 print(f'Ok, we are going to sell {token_to_sell}')
                 print(f'Your current {token_to_sell} balance is: ', your_tkn_balance,f' {token_symbols[token_names.index(token_to_sell)]}')
-                amount,typebool=check_input_type(f'Please enter the amount of {token_to_sell} you want to sell'+colored (('(WITHOUT *10**18 NOTATION, IT WILL BE AUTOMATICALLY ADDED)','red')), float)
+                amount,typebool=check_input_type(f'Please enter the amount of {token_to_sell} you want to sell'+colored ('(WITHOUT *10**18 NOTATION, IT WILL BE AUTOMATICALLY ADDED) ','red'), float)
                 while not typebool:
                     print('Please enter an FLOAT amount',colored(' (WITHOUT *10**18 NOTATION, IT WILL BE AUTOMATICALLY ADDED): ','red'))
                     amount,typebool=check_input_type(f'Please enter the amount of {token_to_sell} you want to sell: ', float)
