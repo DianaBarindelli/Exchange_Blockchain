@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*- #
 
 from brownie.network import connect, accounts
+from brownie import network
 from brownie import Contract, project, web3
 import json
 import random
@@ -44,6 +45,9 @@ if __name__=='__main__':
     Connetto a ropsten e imposto il gas.
     """
     establish_connection('ropsten')
+    gas_price=web3.eth.gasPrice*2
+    network.gas_price(f'{gas_price} wei')
+
 
     """
     Prima di tutto carico i file json che contengono gli indirizzi e le chiavi private.
