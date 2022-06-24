@@ -44,7 +44,7 @@ Players = { 'Pacho': '0xc89304bE60b1184281cDacF8e9ADD215B960Fcb8',
             'Becca': '0x4f6374606526BC5892D5C3037cE68da5712B4Efe',
             'Diana': '0x0B3DE044dC8b2902e6B668Cc43bfedB39dfA8fcD'}
 
-
+playersList =['Pacho','Citte','Fra' ,'Becca','Diana']
 #alternativamente facciamo un load da un json, la sintassi sara comunque la stessa di qui sopra, tipo:
 #f = open('NomeFile.json')
 #Players = json.load(f)
@@ -53,20 +53,20 @@ Players = { 'Pacho': '0xc89304bE60b1184281cDacF8e9ADD215B960Fcb8',
 network.connect('ropsten')
 #network.connect('development')
 
-print('connesso a ropsten')
+print('Connesso a ropsten')
 
 PrivateData=json.loads(open('/home/cristiano/cartella_test/scripts/private_dict.json').read())
 myAccount=accounts.from_mnemonic(PrivateData['personal_account']['mnemonic'], count=1)
 
-print('caricato account personale di utente')
+print('Caricato account personale di utente')
 
-challenge_address = '0x3D2aD3DF24cE150E3a5a1F2122a660dDB0Eeaf67'
-paytoken_address = '0x83f4d10487dD65E25FD2de52149921aCaF647c05'
+challenge_address = '0x31806A506a6BDf08ad03022CdD215d25629B37f6'
+paytoken_address = '0x44262BE38008972D52400a5AEe77F3240d27C6b4'
 
 challenge = Contract.from_abi('Challenge', challenge_address, Challenge.abi)
 paytoken = Contract.from_abi('Paytoken', paytoken_address, TokenZ.abi)
 
-print ('caricati indirizzi di challenge e paytoken')
+print ('Caricati indirizzi di challenge e paytoken')
 
 if (len(sys.argv) == 3 and sys.argv[1] == 'launch_1v1'):
     print("++++++++++ LAUNCHING 1 VS 1 CHALLENGE +++++++++++")    
@@ -89,16 +89,19 @@ if (len(sys.argv) == 1 and sys.argv[1] == 'forcedClosure'):
     print("++++++++++ forcing closure +++++++++++")    
     challenge.forcedClosure({'from':myAccount})
 
-if (len(sys.argv) == 1 and sys.argv[1] == 'timeLeft'):
+if (len(sys.argv) == 2 and sys.argv[1] == 'timeLeft'):
     print("++++++++++ checking time left +++++++++++")    
-    challenge.timeLeft({'from':myAccount})
+    print(challenge.timeLeft({'from':myAccount}))
 
-if (len(sys.argv) == 2 and sys.argv[1] == 'left1v1'):
+if (len(sys.argv) == 3 and sys.argv[1] == 'left1v1'):
     print("++++++++++ remaining 1v1: +++++++++++")    
-    challenge.left1v1(Players[sys.argv[2]], {'from':myAccount})
+    print(challenge.left1v1(Players[sys.argv[2]], {'from':myAccount}))
 
-if (len(sys.argv) == 2 and sys.argv[1] == 'left1v2'):
+if (len(sys.argv) == 3 and sys.argv[1] == 'left1v2'):
     print("++++++++++ remaining 1v2: +++++++++++")    
-    challenge.left1v2(Players[sys.argv[2]], {'from':myAccount})
+    print(challenge.left1v2(Players[sys.argv[2]], {'from':myAccount}))
 
+if (len(sys.argv) == 3 and sys.argv[1] == 'balanceOf' and sys.argv[2] in playersList):
+    print("++++++++++ remaining 1v2: +++++++++++")    
+    print(paytoken.balanceOf(Players[sys.argv[2]], {'from':myAccount}))
 
