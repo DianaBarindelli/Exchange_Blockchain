@@ -19,9 +19,9 @@ def get_logs(address, from_block, to_block, signature, topic1=None, topic2=None,
 	})
 	
 #carico il progetto 'Name_project' che conterrà tutti i contracts, pyscripts ecc...
-p=project.load('.', name='Name_project')
+p=project.load('/home/francesco/Documenti/Fisica_Milano/Met_comp/TEST/brownie', name='Name_project')
 p.load_config()
-from brownie.project.Name_project import *
+from brownie.project.Name_project import Pool
 
 #funzione printFile che mi servirà per printare ciò che voglio, in ingresso prende text=nome con cui printo il file; filename=nome del file.
 def printFile(text, filename):
@@ -75,9 +75,11 @@ Data = json.loads(open('addresses.json').read())
 people={"Francesco":Data["Francesco"]["id"] ,"Cristiano":Data["Cristiano"]["id"] ,"Riccardo":Data["Riccardo"]["id"] ,
 "Matteo":Data["Matteo"]["id"], 'Diana':Data['Diana']["id"]}
 
-#inizialmente, prima dei vari mint, tutti avremo zero token
+
+#TODO: METTERE I BALANCE INIZIALI
+
 Init_tokenbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
-#inizialmente, prima dei vari mint, tutti avremo zero paycoin
+
 Init_paycoinbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
 #inizialmente, prima delle varie operazioni, tutti avremo zero fee
 #Init_feesbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
@@ -86,8 +88,8 @@ Init_paycoinbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 
 network.connect('ropsten')
 
 #collegamento al contratto sol della pool
-contractAddress = #indirizzo della pool
-contr_pool = Contract.from_abi('Pool', contractAddress, pool_abi.abi)
+contractAddress = '0xD6B2b7EDe104c32bB00cC1e36A5d5Fe42B066c9A'  #pool di fra
+contr_pool = Contract.from_abi('Pool', contractAddress, Pool.abi)
 
 
 #filtro tutti gli eventi relativi al contractAddress (pool)
@@ -95,19 +97,27 @@ filt = web3.eth.filter({'address': contractAddress, 'fromBlock':0, 'toBlock':'la
 log = filt.get_all_entries()
 
 #log dei vari eventi presenti nella pool
-Bought_events = web3.keccak(text='Bought(address,address, uint256, uint256, uint256, uint256)').hex()
-Sold_events = web3.keccak(text='Sold(address,address, uint256, uint256, uint256, uint256)').hex()
-Swapp_events = web3.keccak(text='Swapp(address,address,address, uint256, uint256, uint256, uint256)').hex()
-Increase_events = web3.keccak(text='Increase(address,address,uint256, uint256, uint256)').hex()
-Decrease_events = web3.keccak(text='Decreaseaddress,address,uint256, uint256, uint256)').hex()
+Bought_events = web3.keccak(text='Bought(address, address, uint256, uint256, uint256, uint256)').hex()
+Sold_events = web3.keccak(text='Sold(address, address, uint256, uint256, uint256, uint256)').hex()
+Swapp_events = web3.keccak(text='Swapp(address, address, address, uint256, uint256, uint256, uint256)').hex()
+Increase_events = web3.keccak(text='Increase(address, address, uint256, uint256, uint256)').hex()
+Decrease_events = web3.keccak(text='Decreaseaddress, address, uint256, uint256, uint256)').hex()
 
+#print(Bought_events)
+#print(Sold_events)
+#print(Swapp_events)
+#print(Increase_events)
+#print(Decrease_events)
 
+print('\n')
+#print(log)
 #ciclo di lettura dei log e stampa dei risultati:
 if len(log) > 0:
 	for i in log:  #ciclo su tutti i log presenti nel contractAddress(Pool)
 		data_evento=''
 		sign = '0x'+''.join(format(x, '02x') for x in i['topics'][0])  #crea l'hash del topic[0]; questo hash mi identifica l'evento (tipo bought)
-		sender = '0x'+''.join(format(x, '02x') for x in i['topics'][1]) #crea l'hash del topich[1]; questo hash identifica l'indirizzo di chi ha effettuato l'evento
+		#print(sign)
+		#sender = '0x'+''.join(format(x, '02x') for x in i['topics'][1]) #crea l'hash del topich[1]; questo hash identifica l'indirizzo di chi ha effettuato l'evento
 		data = i['data'] #quantità di token che vengono scambiati (acquistati nel caso dell'evento bought, venduti nel caso dell'evento sell)  NON SONO SICURO DI QUESTO
 		
 		if sign == Bought_events:  #se il topic[0] coincide con l'hash dell'evento bought
@@ -285,6 +295,9 @@ if len(log) > 0:
 		#printFile(str(paycoin_balances['Fra'] +'\t'+ str(paycoin_balances['Cri'] +'\t'+ str(paycoin_balances['Richi'] +'\t'+ str(paycoin_balances['Matte'] +'\t'+ str(paycoin_balances['Diana'] +'\t'+ data_evento, paycoinbalances)
 		#printFile(str(fees_balances['Fra'] +'\t'+ str(fees_balances['Cri'] +'\t'+ str(fees_balances['Richi'] +'\t'+ str(fees_balances['Matte'] +'\t'+ str(fees_balances['Diana'] +'\t'+ data_evento, feesbalances)
 		
+
+else :
+	print("::: Log is empty :::")
 
 
 
