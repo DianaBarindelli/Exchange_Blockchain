@@ -73,7 +73,7 @@ def get_gas_price():
     gas_price=web3.eth.gasPrice*2
     print(f"Gas price: {gwei(gas_price)} gwei")
     network.gas_price(f'{gas_price} wei')   #this sets the gas price for the next transactions
-    network.gas_limit(300000)               #this sets the MAX amount of gas per transaction. WARNING
+    # network.gas_limit(300000)               #this sets the MAX amount of gas per transaction. WARNING
     return gas_price
 
 def sigmoid(x):
@@ -558,7 +558,7 @@ def mint_paycoin_to_bots(bots,paycoin,paycoin_minter):
             gas_price=get_gas_price()
             thr.append(threading.Thread(target=paycoin.mint, args=(bot, PcN_amount, {'from':paycoin_minter, 'gas_price':gas_price})))
             thr[-1].start()
-            time.sleep(.1)
+            time.sleep(0.1)
 
     for t in thr:
         t.join()  
