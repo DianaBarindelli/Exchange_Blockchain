@@ -10,6 +10,9 @@ import eth_abi
 import subprocess
 import time as t
 
+
+
+
 #funzione che interagisce con i log degli eventi nella blockchain
 def get_logs(address, from_block, to_block, signature, topic1=None, topic2=None, topic3=None):
 	return web3.eth.getLogs({
@@ -59,13 +62,13 @@ clean(pool)
 clean(pay_token_price)  
 
 with open(paycoinbalances, 'w') as f:
-	f.write('Fra\tCri\tRichi\tMatte\tDiana\tDate\n')
+	f.write('Name\tPaycoinBalance\tDate\n')
 	
 with open(tokenbalances, 'w') as f:
-	f.write('Fra\tCri\tRichi\tMatte\tDiana\tDate\n')
+	f.write('Name\tTokenBalance\tDate\n')
 
 with open(feesf, 'w') as f:
-	f.write('Fra\tCri\tRichi\tMatte\tDiana\tDate\n')
+	f.write('Name\tFee\tDate\n')
 	
 
 #carico il file json con tutti gli indirizzi: -Personali ; -Pool ; -Token ; -Challenge ; -Paycoin ; -Bots
@@ -110,13 +113,7 @@ Decrease_events = web3.keccak(text='Decreaseaddress,address,uint256,uint256,uint
 #print(Increase_events)
 #print(Decrease_events)
 
-print('\n')
-print(log[0:2])
-print('\n')
-print('Bought_events', Bought_events)
-print('\n')
-print('Sold_events', Sold_events)
-print('\n')
+
 #ciclo di lettura dei log e stampa dei risultati:
 if len(log) > 0:
 	for i in log:  #ciclo su tutti i log presenti nel contractAddress(Pool)
@@ -140,12 +137,14 @@ if len(log) > 0:
 			
 			
 			data_evento = str(time(data_decoded[5])) # momento in cui uno attua l'evento buy 
-			print('buyer:'+str(data_decoded[0]))
+			name = user_name(str(data_decoded[0]))
+			
+			print('buyer:',name)
 			print('pool:'+str(data_decoded[1]))
 			print('tokenOut_amount:'+str(data_decoded[2]))
 			print('paycoinIn_amount:'+str(data_decoded[3]))
 			print('fees:'+str(data_decoded[4]))
-			printFile('buyer:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
+			printFile('buyer:'+name, pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
 			printFile('pool:'+str(data_decoded[1]),pool)
 			printFile('tokenOut_amount:'+str(data_decoded[2]), pool) #e la quantità
 			printFile('paycoinIn_amount:'+str(data_decoded[3]),pool)
@@ -159,8 +158,6 @@ if len(log) > 0:
 			buyer = data_decoded[0]
 			printFile(str(pay_amount)+'\t'+str(tkn_amount)+'\t'+str(price)+'\t'+data_evento, pay_token_price)  #salvo l'info nel file
 		 #salvo su file andamento fees
-
-			name = user_name(str(data_decoded[0]))
 			printFile(name + '\t' +str(fees)+'\t' +data_evento, feesf)
 			token_balances[name] += data_decoded[2]
 			paycoin_balances[name] -= data_decoded[3] 
@@ -183,12 +180,13 @@ if len(log) > 0:
 			
 			
 			data_evento = str(time(data_decoded[5])) #se ci fosse come input il momento in cui uno attua l'evento buy per esempio
-			print('seller:'+str(data_decoded[0]))
+			name = user_name(str(data_decoded[0]))
+			print('seller:',name)
 			print('pool:'+str(data_decoded[1]))
 			print('tokenIn_amount:'+str(data_decoded[2]))
 			print('paycoinOut_amount:'+str(data_decoded[3]))
 			print('fees:'+str(data_decoded[4]))
-			printFile('seller:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
+			printFile('seller:'+name, pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
 			printFile('pool:'+str(data_decoded[1]),pool)
 			printFile('tokenIn_amount:'+str(data_decoded[2]), pool) #e la quantità
 			printFile('paycoinOut_amount:'+str(data_decoded[3]),pool)
@@ -203,7 +201,7 @@ if len(log) > 0:
 			printFile(str(pay_amount)+'\t'+str(tkn_amount)+'\t'+str(price)+'\t'+data_evento, pay_token_price)  #salvo l'info nel file
 		
 
-			name = user_name(str(data_decoded[0]))
+			
 			token_balances[name] -= data_decoded[2]
 			paycoin_balances[name] += data_decoded[3]
 			printFile(name + '\t' +str(fees)+'\t' +data_evento, feesf)
@@ -224,13 +222,14 @@ if len(log) > 0:
 			# uint256 time
 			
 			data_evento = str(time(data_decoded[6])) #se ci fosse come input il momento in cui uno attua l'evento buy per esempio
-			print('swapper:'+str(data_decoded[0]))
+			name = user_name(str(data_decoded[0]))
+			print('swapper:',name)
 			print('PoolA:'+str(data_decoded[1]))
 			print('PoolB:'+str(data_decoded[2]))
 			print('tokenAOut_amount:'+str(data_decoded[3]))
 			print('tokenBIn_amount:'+str(data_decoded[4]))
 			print('fees:'+str(data_decoded[5]))
-			printFile('swapper:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
+			printFile('swapper:'+name, pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
 			printFile('PoolA:'+str(data_decoded[1]),pool)
 			printFile('PoolB:'+str(data_decoded[2]),pool)
 			printFile('tokenAOut_amount:'+str(data_decoded[3]),pool) #e la quantità
@@ -241,7 +240,7 @@ if len(log) > 0:
 			fees = data_decoded[5]
 		
 		
-			name = user_name(str(data_decoded[0]))
+			
 			printFile(name + '\t' +str(fees)+'\t' +data_evento, feesf)
 			token_balances[name] -= data_decoded[4]
 			printFile(name + '\t' +str(token_balances[name])+'\t' +data_evento, tokenbalances)
@@ -252,17 +251,18 @@ if len(log) > 0:
 			printFile('--increase--', pool) #inserisco nel file pool che è stato effettuato un'acquisto
 			data_decoded = eth_abi.decode_abi(['address','address','uint256','uint256','uint256'], HexBytes(data)) #mi decodifica il log nell'input dell'evento
 			data_evento = str(time(data_decoded[4])) #se ci fosse come input il momento in cui uno attua l'evento buy per esempio
-			print('increaser:'+str(data_decoded[0]))
+			name = user_name(str(data_decoded[0]))
+			print('increaser:',name)
 			print('increaserPool:'+str(data_decoded[1]))
 			print('Token_increase:'+str(data_decoded[2]))
 			print('Paycoin_increase:'+str(data_decoded[3]))
-			printFile('increaser:'+str(data_decoded[0],pool))
+			printFile('increaser:'+name,pool)
 			printFile('increaserPool:'+str(data_decoded[1]),pool)
 			printFile('Token_increase:'+str(data_decoded[2]),pool)
 			printFile('Paycoin_increase:'+str(data_decoded[3]),pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
 			printFile('time:'+data_evento, pool) #e quando è avvenuto
 			
-			name = user_name(str(data_decoded[0]))
+			
 			token_balances[name] -= data_decoded[2]
 			paycoin_balances[name] -= data_decoded[3]
 
@@ -274,17 +274,19 @@ if len(log) > 0:
 			printFile('--decrease--', pool) #inserisco nel file pool che è stato effettuato un'acquisto
 			data_decoded = eth_abi.decode_abi(['address','address','uint256','uint256','uint256'], HexBytes(data)) #mi decodifica il log nell'input dell'evento
 			data_evento = str(time(data_decoded[4])) #se ci fosse come input il momento in cui uno attua l'evento buy per esempio
-			print('decreaser:'+str(data_decoded[0]))
+			name = user_name(str(data_decoded[0]))
+			
+			print('decreaser:',name)
 			print('decreaserPool:'+str(data_decoded[1]))
 			print('Token_decrease:'+str(data_decoded[2]))
 			print('Paycoin_decrease:'+str(data_decoded[3]))
-			printFile('decreaser:'+str(data_decoded[0]),pool)
+			printFile('decreaser:'+name,pool)
 			printFile('decreaserPool:'+str(data_decoded[1]),pool)
 			printFile('Token_decrease:'+str(data_decoded[2]),pool)
 			printFile('Paycoin_decrease:'+str(data_decoded[3]),pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
 			printFile('time:'+data_evento, pool) #e quando è avvenuto
 			
-			name = user_name(str(data_decoded[0]))
+			
 			token_balances[name] += data_decoded[2]
 			paycoin_balances[name] += data_decoded[3]
 
