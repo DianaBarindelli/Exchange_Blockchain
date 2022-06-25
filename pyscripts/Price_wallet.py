@@ -109,7 +109,7 @@ date_2=datetime.now()
 currentTime = date_2.strftime("%H")
 
 while(check==True and int(currentTime)<18):
-    time.sleep(5)
+    time.sleep(60)
     block = web3.eth.get_block('latest')
     if(block['timestamp']>=(block_number+10)):
         block_number=block['timestamp']
