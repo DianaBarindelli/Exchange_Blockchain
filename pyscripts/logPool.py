@@ -8,6 +8,7 @@ import random
 import json
 import eth_abi
 import subprocess
+import time as t
 
 #funzione che interagisce con i log degli eventi nella blockchain
 def get_logs(address, from_block, to_block, signature, topic1=None, topic2=None, topic3=None):
@@ -19,9 +20,9 @@ def get_logs(address, from_block, to_block, signature, topic1=None, topic2=None,
 	})
 	
 #carico il progetto 'Name_project' che conterrà tutti i contracts, pyscripts ecc...
-p=project.load('/home/francesco/Documenti/Fisica_Milano/Met_comp/TEST/brownie', name='Name_project')
+p=project.load('../', name='TokenProject')
 p.load_config()
-from brownie.project.Name_project import Pool
+from brownie.project.TokenProject import Pool
 
 #funzione printFile che mi servirà per printare ciò che voglio, in ingresso prende text=nome con cui printo il file; filename=nome del file.
 def printFile(text, filename):
@@ -42,9 +43,9 @@ def time(data):
 #funzione che prende in ingresso un indirizzo, e verifica se questo combacia con l'indirizzo di uno di noi o di un bot; in ogni caso printa la risposta		
 def user_name(addr):
 	for i in people:
-		if people[i].lower() == addr.lower():
+		if people[i].lower() == addr.lower():  #mette tutto minuscolo
 			return (i)
-	return ('bots')
+	return ('Bots')
 	
 	
 pool= './log.txt'  #file che contiene tutte le info delle transazioni della pool
@@ -78,9 +79,9 @@ people={"Francesco":Data["Francesco"]["id"] ,"Cristiano":Data["Cristiano"]["id"]
 
 #TODO: METTERE I BALANCE INIZIALI
 
-Init_tokenbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
+token_balances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
 
-Init_paycoinbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
+paycoin_balances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
 #inizialmente, prima delle varie operazioni, tutti avremo zero fee
 #Init_feesbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 'Diana':0, 'Bots':0}
 
@@ -88,7 +89,7 @@ Init_paycoinbalances = {'Francesco':0, 'Cristiano':0, 'Riccardo':0, 'Matteo':0, 
 network.connect('ropsten')
 
 #collegamento al contratto sol della pool
-contractAddress = '0xD6B2b7EDe104c32bB00cC1e36A5d5Fe42B066c9A'  #pool di fra
+contractAddress = '0xc31dEfF5f1A9e9fB749d2f881Da62675E1D0D771'  #pool di diana
 contr_pool = Contract.from_abi('Pool', contractAddress, Pool.abi)
 
 
@@ -97,11 +98,11 @@ filt = web3.eth.filter({'address': contractAddress, 'fromBlock':0, 'toBlock':'la
 log = filt.get_all_entries()
 
 #log dei vari eventi presenti nella pool
-Bought_events = web3.keccak(text='Bought(address, address, uint256, uint256, uint256, uint256)').hex()
-Sold_events = web3.keccak(text='Sold(address, address, uint256, uint256, uint256, uint256)').hex()
-Swapp_events = web3.keccak(text='Swapp(address, address, address, uint256, uint256, uint256, uint256)').hex()
-Increase_events = web3.keccak(text='Increase(address, address, uint256, uint256, uint256)').hex()
-Decrease_events = web3.keccak(text='Decreaseaddress, address, uint256, uint256, uint256)').hex()
+Bought_events = web3.keccak(text='Bought(address,address,uint256,uint256,uint256,uint256)').hex()
+Sold_events = web3.keccak(text='Sold(address,address,uint256,uint256,uint256,uint256)').hex()
+Swapp_events = web3.keccak(text='Swapp(address,address,address,uint256,uint256,uint256,uint256)').hex()
+Increase_events = web3.keccak(text='Increase(address,address,uint256,uint256,uint256)').hex()
+Decrease_events = web3.keccak(text='Decreaseaddress,address,uint256,uint256,uint256)').hex()
 
 #print(Bought_events)
 #print(Sold_events)
@@ -110,13 +111,18 @@ Decrease_events = web3.keccak(text='Decreaseaddress, address, uint256, uint256, 
 #print(Decrease_events)
 
 print('\n')
-#print(log)
+print(log[0:2])
+print('\n')
+print('Bought_events', Bought_events)
+print('\n')
+print('Sold_events', Sold_events)
+print('\n')
 #ciclo di lettura dei log e stampa dei risultati:
 if len(log) > 0:
 	for i in log:  #ciclo su tutti i log presenti nel contractAddress(Pool)
 		data_evento=''
 		sign = '0x'+''.join(format(x, '02x') for x in i['topics'][0])  #crea l'hash del topic[0]; questo hash mi identifica l'evento (tipo bought)
-		#print(sign)
+		print(sign)
 		#sender = '0x'+''.join(format(x, '02x') for x in i['topics'][1]) #crea l'hash del topich[1]; questo hash identifica l'indirizzo di chi ha effettuato l'evento
 		data = i['data'] #quantità di token che vengono scambiati (acquistati nel caso dell'evento bought, venduti nel caso dell'evento sell)  NON SONO SICURO DI QUESTO
 		
@@ -140,7 +146,7 @@ if len(log) > 0:
 			print('paycoinIn_amount:'+str(data_decoded[3]))
 			print('fees:'+str(data_decoded[4]))
 			printFile('buyer:'+str(data_decoded[0]), pool) #oltre a printarlo su schermo, salvo anche sul file pool chi è il sender dell'evento
-			printFile('pool:'+str(data_decoded[1],pool))
+			printFile('pool:'+str(data_decoded[1]),pool)
 			printFile('tokenOut_amount:'+str(data_decoded[2]), pool) #e la quantità
 			printFile('paycoinIn_amount:'+str(data_decoded[3]),pool)
 			printFile('fees:'+str(data_decoded[4]),pool)
