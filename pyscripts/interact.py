@@ -3,6 +3,7 @@
 
 from lib2to3.pgen2 import token
 from brownie.network import connect, accounts
+from brownie import network
 from brownie import Contract, project, web3
 import json
 import threading
@@ -52,6 +53,9 @@ if __name__=='__main__':
     Connetto a ropsten e imposto il gas.
     """
     establish_connection('ropsten')
+    gas_price=web3.eth.gasPrice*2
+    network.gas_price(f'{gas_price} wei')
+    
 
     """
     Prima di tutto carico i file json che contengono gli indirizzi e le chiavi private.
@@ -237,14 +241,17 @@ if __name__=='__main__':
                 print('\nYou are going to pay', ether(paycoin_ToAdd), f'PcN to increase liquidity with {amount} {personal_token_symbol}')
                 print('Checking your balances...')
 
-                bool1=lets_get_real_amount>=ether(personal_token.balanceOf(personal))
-                bool2=lets_get_real_paycoin>=ether(Paycoin.balanceOf(personal))
+                bool1=lets_get_real_amount<=ether(personal_token.balanceOf(personal))
+                bool2=ether(lets_get_real_paycoin)<=ether(Paycoin.balanceOf(personal))
+
+                print('bool1: lets_get_real_amount>=ether(personal_token.balanceOf(personal))',bool1)
+                print('bool2: ether(lets_get_real_paycoin)>=ether(Paycoin.balanceOf(personal))',bool2)
 
                 checkedbalance= bool1 and bool2
                 
                 if not checkedbalance:
-                    print(colored(f'Maybe your Paycoin balance is not enough to increase liquidity, you have {your_pcn_balance} PcN, you need {lets_get_real_paycoin} PcN!','red'))
-                    print(colored(f'Maybe your token balance is not enough, you have {your_tkn_balance} {personal_token_symbol}, you need {lets_get_real_amount} {personal_token_symbol}!'))
+                    print(colored(f'Maybe your Paycoin balance is not enough to increase liquidity, you have {your_pcn_balance} PcN, you need {ether(lets_get_real_paycoin)} PcN!','red'))
+                    print(colored(f'Maybe your token balance is not enough, you have {your_token_balance} {personal_token_symbol}, you need {lets_get_real_amount} {personal_token_symbol}!'))
                     print('Terminating the program')
                     exit(-1)
 
@@ -254,7 +261,7 @@ if __name__=='__main__':
                 print('approving personal token')
                 thr.append(threading.Thread(target=personal_token.approve, args=(personal_pool,amount*10**18*1.05,{'from': personal})))
                 thr[-1].start()
-                thr.append(threading.Thread(Paycoin.approve, args=(personal_pool,paycoin_ToAdd*1.05,{'from': personal})))
+                thr.append(threading.Thread(target=Paycoin.approve, args=(personal_pool,paycoin_ToAdd*1.05,{'from': personal})))
                 thr[-1].start()
                 for t in thr:
                     t.join()
@@ -265,11 +272,12 @@ if __name__=='__main__':
         elif op_type=='DECREASE':
 
             checkedbalance=False
+            your_pcn_balance=ether(Paycoin.balanceOf(personal_pool))
             while not checkedbalance:
                     
                 your_pool_balance=ether(personal_token.balanceOf(personal_pool))
-                print('Your current Paycoin balance is: ', your_pcn_balance,' PcN')
-                print('Your current token balance is: ', your_token_balance,f' {personal_token_symbol}')
+                print('Your current POOL Paycoin balance is: ', your_pcn_balance,' PcN')
+                print('Your current POOL token balance is: ', your_pool_balance,f' {personal_token_symbol}')
 
                 amount,typebool=check_input_type(f'Please enter the amount of {personal_token_name} you want to withdraw from the pool to decrease liquidity '+colored(' (WITHOUT *10**18 NOTATION, IT WILL BE ADDED AUTOMATICALLY): ','red'), float)
                 while not typebool:
@@ -279,7 +287,7 @@ if __name__=='__main__':
                 amount=float(amount)
                 print('Checking your balances...')
 
-                checkedbalance=amount>=ether(personal_token.balanceOf(personal_pool))
+                checkedbalance=amount<=ether(personal_token.balanceOf(personal_pool))
                 
                 if not checkedbalance:
                     print(colored(f'Pool\'s token balance is not enough, it has {your_pool_balance} {personal_token_symbol}, you wanted {amount} {personal_token_symbol}!'))
