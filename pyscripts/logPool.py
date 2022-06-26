@@ -105,7 +105,7 @@ Bought_events = web3.keccak(text='Bought(address,address,uint256,uint256,uint256
 Sold_events = web3.keccak(text='Sold(address,address,uint256,uint256,uint256,uint256)').hex()
 Swapp_events = web3.keccak(text='Swapp(address,address,address,uint256,uint256,uint256,uint256)').hex()
 Increase_events = web3.keccak(text='Increase(address,address,uint256,uint256,uint256)').hex()
-Decrease_events = web3.keccak(text='Decreaseaddress,address,uint256,uint256,uint256)').hex()
+Decrease_events = web3.keccak(text='Decrease(address,address,uint256,uint256,uint256)').hex()
 
 #print(Bought_events)
 #print(Sold_events)
